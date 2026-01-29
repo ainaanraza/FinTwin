@@ -1,5 +1,11 @@
 {
-  "dependencies": {
-    "react-markdown": "^10.1.0"
-  }
+    "name": "fintwin-root",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "vercel-build": "cd frontend && npm install && npm run build"
+    },
+    "engines": {
+        "node": "18.x"
+    }
 }

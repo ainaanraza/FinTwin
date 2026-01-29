@@ -5,7 +5,7 @@ const UserProfile = () => {
     const [profile, setProfile] = React.useState(null);
 
     React.useEffect(() => {
-        fetch('http://localhost:8000/api/profile')
+        fetch('/api/profile')
             .then(res => res.json())
             .then(data => setProfile(data))
             .catch(err => console.error("Profile Fetch Error", err));
@@ -13,9 +13,9 @@ const UserProfile = () => {
 
     if (!profile) {
         return (
-            <div className="fade-in" style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
+            <div className="fade-in" style={{
+                display: 'flex',
+                justifyContent: 'center',
                 alignItems: 'center',
                 height: '60vh',
                 fontSize: 'clamp(0.9rem, 2vw, 1.1rem)',
@@ -27,61 +27,61 @@ const UserProfile = () => {
     }
 
     return (
-        <div className="fade-in" style={{ 
+        <div className="fade-in" style={{
             padding: 'clamp(1.5rem, 4vw, 2rem)',
             paddingBottom: 'clamp(2rem, 5vw, 3rem)'
         }}>
             {/* Profile Header */}
-            <header style={{ 
-                marginBottom: 'clamp(2rem, 5vw, 3rem)', 
-                textAlign: 'center' 
+            <header style={{
+                marginBottom: 'clamp(2rem, 5vw, 3rem)',
+                textAlign: 'center'
             }}>
                 <div style={{
-                    width: 'clamp(80px, 18vw, 100px)', 
-                    height: 'clamp(80px, 18vw, 100px)', 
+                    width: 'clamp(80px, 18vw, 100px)',
+                    height: 'clamp(80px, 18vw, 100px)',
                     borderRadius: '50%',
                     background: '#000',
                     color: '#fff',
-                    display: 'flex', 
-                    alignItems: 'center', 
+                    display: 'flex',
+                    alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: 'clamp(2rem, 5vw, 2.5rem)', 
+                    fontSize: 'clamp(2rem, 5vw, 2.5rem)',
                     fontWeight: 300,
                     margin: '0 auto clamp(1rem, 3vw, 1.5rem)',
                     border: '4px solid var(--accent-gold)'
                 }}>
                     {profile.name.split(' ').map(n => n[0]).join('')}
                 </div>
-                <h2 style={{ 
-                    fontSize: 'clamp(1.5rem, 4vw, 1.75rem)', 
-                    fontWeight: 700, 
-                    marginBottom: '0.5rem' 
+                <h2 style={{
+                    fontSize: 'clamp(1.5rem, 4vw, 1.75rem)',
+                    fontWeight: 700,
+                    marginBottom: '0.5rem'
                 }}>
                     {profile.name}
                 </h2>
-                <p style={{ 
-                    color: '#666', 
-                    fontSize: 'clamp(0.9rem, 2vw, 1rem)' 
+                <p style={{
+                    color: '#666',
+                    fontSize: 'clamp(0.9rem, 2vw, 1rem)'
                 }}>
                     Software Engineer
                 </p>
             </header>
 
             {/* Profile Cards Grid */}
-            <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
                 gap: 'clamp(1.25rem, 3vw, 2rem)',
                 maxWidth: '1200px',
                 margin: '0 auto'
             }}>
                 {/* Financial Overview Card */}
-                <div className="card-float" style={{ 
-                    borderTop: '4px solid #000' 
+                <div className="card-float" style={{
+                    borderTop: '4px solid #000'
                 }}>
-                    <h3 style={{ 
-                        marginBottom: '1.5rem', 
-                        fontSize: 'clamp(1rem, 2.5vw, 1.1rem)', 
+                    <h3 style={{
+                        marginBottom: '1.5rem',
+                        fontSize: 'clamp(1rem, 2.5vw, 1.1rem)',
                         fontWeight: 700,
                         letterSpacing: '0.05em',
                         textTransform: 'uppercase',
@@ -89,50 +89,50 @@ const UserProfile = () => {
                     }}>
                         Financial Overview
                     </h3>
-                    <div style={{ 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        gap: '1.5rem' 
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1.5rem'
                     }}>
-                        <div style={{ 
-                            display: 'flex', 
-                            justifyContent: 'space-between', 
-                            paddingBottom: '1rem', 
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            paddingBottom: '1rem',
                             borderBottom: '1px solid #f3f4f6',
                             alignItems: 'center',
                             gap: '1rem'
                         }}>
-                            <span style={{ 
+                            <span style={{
                                 color: '#666',
                                 fontSize: 'clamp(0.9rem, 2vw, 1rem)'
                             }}>
                                 Income
                             </span>
-                            <span style={{ 
-                                fontWeight: 700, 
+                            <span style={{
+                                fontWeight: 700,
                                 fontSize: 'clamp(1.1rem, 2.5vw, 1.2rem)',
                                 whiteSpace: 'nowrap'
                             }}>
                                 ${profile.income}/mo
                             </span>
                         </div>
-                        <div style={{ 
-                            display: 'flex', 
-                            justifyContent: 'space-between', 
-                            paddingBottom: '1rem', 
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            paddingBottom: '1rem',
                             borderBottom: '1px solid #f3f4f6',
                             alignItems: 'center',
                             gap: '1rem'
                         }}>
-                            <span style={{ 
+                            <span style={{
                                 color: '#666',
                                 fontSize: 'clamp(0.9rem, 2vw, 1rem)'
                             }}>
                                 Savings
                             </span>
-                            <span style={{ 
-                                fontWeight: 700, 
-                                fontSize: 'clamp(1.1rem, 2.5vw, 1.2rem)', 
+                            <span style={{
+                                fontWeight: 700,
+                                fontSize: 'clamp(1.1rem, 2.5vw, 1.2rem)',
                                 color: 'var(--accent-gold)',
                                 whiteSpace: 'nowrap'
                             }}>
@@ -143,12 +143,12 @@ const UserProfile = () => {
                 </div>
 
                 {/* Financial Health Card */}
-                <div className="card-float" style={{ 
-                    borderTop: '4px solid #000' 
+                <div className="card-float" style={{
+                    borderTop: '4px solid #000'
                 }}>
-                    <h3 style={{ 
-                        marginBottom: '1.5rem', 
-                        fontSize: 'clamp(1rem, 2.5vw, 1.1rem)', 
+                    <h3 style={{
+                        marginBottom: '1.5rem',
+                        fontSize: 'clamp(1rem, 2.5vw, 1.1rem)',
                         fontWeight: 700,
                         letterSpacing: '0.05em',
                         textTransform: 'uppercase',
@@ -157,45 +157,45 @@ const UserProfile = () => {
                         Financial Health
                     </h3>
 
-                    <div style={{ 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        gap: '1.5rem' 
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1.5rem'
                     }}>
                         {/* Financial Score */}
-                        <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: 'clamp(1rem, 3vw, 1.5rem)' 
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 'clamp(1rem, 3vw, 1.5rem)'
                         }}>
-                            <div style={{ 
-                                padding: 'clamp(0.65rem, 2vw, 0.75rem)', 
-                                background: '#000', 
-                                borderRadius: '50%', 
+                            <div style={{
+                                padding: 'clamp(0.65rem, 2vw, 0.75rem)',
+                                background: '#000',
+                                borderRadius: '50%',
                                 color: 'var(--accent-gold)',
                                 flexShrink: 0
                             }}>
                                 <Shield size={clamp(20, 5, 24)} />
                             </div>
                             <div style={{ minWidth: 0, flex: 1 }}>
-                                <h4 style={{ 
-                                    fontSize: 'clamp(0.75rem, 2vw, 0.85rem)', 
-                                    color: '#666', 
-                                    textTransform: 'uppercase', 
+                                <h4 style={{
+                                    fontSize: 'clamp(0.75rem, 2vw, 0.85rem)',
+                                    color: '#666',
+                                    textTransform: 'uppercase',
                                     letterSpacing: '0.05em',
                                     marginBottom: '0.25rem'
                                 }}>
                                     Financial Score
                                 </h4>
-                                <p style={{ 
-                                    fontSize: 'clamp(1.25rem, 3vw, 1.5rem)', 
+                                <p style={{
+                                    fontSize: 'clamp(1.25rem, 3vw, 1.5rem)',
                                     fontWeight: 700,
                                     margin: 0
                                 }}>
-                                    780 
-                                    <span style={{ 
-                                        fontSize: 'clamp(0.7rem, 2vw, 0.8rem)', 
-                                        fontWeight: 400, 
+                                    780
+                                    <span style={{
+                                        fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
+                                        fontWeight: 400,
                                         color: 'var(--accent-gold)',
                                         marginLeft: '0.5rem'
                                     }}>
@@ -206,38 +206,38 @@ const UserProfile = () => {
                         </div>
 
                         {/* Goals On Track */}
-                        <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: 'clamp(1rem, 3vw, 1.5rem)' 
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 'clamp(1rem, 3vw, 1.5rem)'
                         }}>
-                            <div style={{ 
-                                padding: 'clamp(0.65rem, 2vw, 0.75rem)', 
-                                background: '#000', 
-                                borderRadius: '50%', 
+                            <div style={{
+                                padding: 'clamp(0.65rem, 2vw, 0.75rem)',
+                                background: '#000',
+                                borderRadius: '50%',
                                 color: 'var(--accent-gold)',
                                 flexShrink: 0
                             }}>
                                 <Target size={clamp(20, 5, 24)} />
                             </div>
                             <div style={{ minWidth: 0, flex: 1 }}>
-                                <h4 style={{ 
-                                    fontSize: 'clamp(0.75rem, 2vw, 0.85rem)', 
-                                    color: '#666', 
-                                    textTransform: 'uppercase', 
+                                <h4 style={{
+                                    fontSize: 'clamp(0.75rem, 2vw, 0.85rem)',
+                                    color: '#666',
+                                    textTransform: 'uppercase',
                                     letterSpacing: '0.05em',
                                     marginBottom: '0.25rem'
                                 }}>
                                     Goals On Track
                                 </h4>
-                                <p style={{ 
-                                    fontSize: 'clamp(1.25rem, 3vw, 1.5rem)', 
+                                <p style={{
+                                    fontSize: 'clamp(1.25rem, 3vw, 1.5rem)',
                                     fontWeight: 700,
                                     margin: 0
                                 }}>
-                                    {profile.goals.length} 
-                                    <span style={{ 
-                                        fontSize: 'clamp(0.7rem, 2vw, 0.8rem)', 
+                                    {profile.goals.length}
+                                    <span style={{
+                                        fontSize: 'clamp(0.7rem, 2vw, 0.8rem)',
                                         fontWeight: 400,
                                         marginLeft: '0.5rem'
                                     }}>
