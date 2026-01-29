@@ -1,7 +1,16 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse, Response
 from dotenv import load_dotenv
 import os
+from io import BytesIO
+from datetime import datetime
+from collections import defaultdict
+
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import LETTER
+from reportlab.lib import colors
+from reportlab.lib.units import inch
 
 load_dotenv()
 from pydantic import BaseModel
@@ -51,6 +60,76 @@ class SmartSpendRequest(BaseModel):
     amount: float
     category: str
 
+
+def _aggregate_category_totals(transactions):
+    category_totals = defaultdict(float)
+    for item in transactions:
+        category_totals[item.get("category", "Other")] += float(item.get("amount", 0))
+    # return top 5
+    return sorted(category_totals.items(), key=lambda x: x[1], reverse=True)[:5]
+
+
+def _build_summary_pdf(spending_data):
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer, pagesize=LETTER)
+    width, height = LETTER
+
+    # Header
+    c.setFillColor(colors.HexColor('#0f172a'))
+    c.setFont("Helvetica-Bold", 18)
+    c.drawString(1 * inch, height - 1 * inch, "FinTwin Spending Summary")
+    c.setFont("Helvetica", 10)
+    c.setFillColor(colors.gray)
+    c.drawString(1 * inch, height - 1.25 * inch, f"Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}")
+
+    # Basic stats
+    total_amount = sum(item.get("amount", 0) for item in spending_data)
+    num_tx = len(spending_data)
+    avg_tx = total_amount / num_tx if num_tx else 0
+
+    c.setFillColor(colors.HexColor('#111827'))
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(1 * inch, height - 1.75 * inch, "At-a-glance")
+    c.setFont("Helvetica", 11)
+    c.drawString(1 * inch, height - 2.05 * inch, f"Total spend: ${total_amount:,.2f}")
+    c.drawString(1 * inch, height - 2.3 * inch, f"Transactions: {num_tx}")
+    c.drawString(1 * inch, height - 2.55 * inch, f"Average ticket: ${avg_tx:,.2f}")
+
+    # Category chart (simple bar chart)
+    top_cats = _aggregate_category_totals(spending_data)
+    if top_cats:
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(1 * inch, height - 3.1 * inch, "Top categories")
+        chart_x = 1 * inch
+        chart_y = height - 6 * inch
+        chart_width = 5 * inch
+        bar_height = 0.4 * inch
+        gap = 0.15 * inch
+        max_val = max(val for _, val in top_cats) or 1
+        for idx, (cat, val) in enumerate(top_cats):
+            y = chart_y - idx * (bar_height + gap)
+            bar_len = (val / max_val) * chart_width
+            c.setFillColor(colors.HexColor('#0f172a'))
+            c.roundRect(chart_x, y, bar_len, bar_height, 4, stroke=0, fill=1)
+            c.setFillColor(colors.white)
+            c.setFont("Helvetica-Bold", 9)
+            c.drawString(chart_x + 6, y + bar_height / 2 - 3, f"{cat}")
+            c.setFillColor(colors.HexColor('#0f172a'))
+            c.setFont("Helvetica", 9)
+            c.drawRightString(chart_x + chart_width + 0.75 * inch, y + bar_height / 2 - 3, f"${val:,.0f}")
+
+    # Footer note
+    c.setStrokeColor(colors.HexColor('#e5e7eb'))
+    c.line(1 * inch, 0.9 * inch, width - 1 * inch, 0.9 * inch)
+    c.setFont("Helvetica", 9)
+    c.setFillColor(colors.gray)
+    c.drawString(1 * inch, 0.7 * inch, "FinTwin • AI spending insight snapshot")
+
+    c.showPage()
+    c.save()
+    buffer.seek(0)
+    return buffer
+
 # Mock Raw Data
 RAW_SPENDING = [
     {"id": 1, "category": "Uncategorized", "amount": 25.50, "date": "2023-10-25", "merchant": "Burger King #123"},
@@ -75,6 +154,17 @@ def get_spending():
     raw_data = TransactionService.get_all_transactions()
     cleaned_data = DataPrepService.clean_data(raw_data)
     return cleaned_data
+
+
+@app.get("/api/export-summary")
+def export_summary():
+    """Generate a simple one-page PDF of spending stats and top categories."""
+    raw_data = TransactionService.get_all_transactions()
+    cleaned_data = DataPrepService.clean_data(raw_data)
+    pdf_buffer = _build_summary_pdf(cleaned_data)
+    pdf_bytes = pdf_buffer.getvalue()
+    headers = {"Content-Disposition": "attachment; filename=finTwin-summary.pdf"}
+    return Response(content=pdf_bytes, media_type="application/pdf", headers=headers)
 
 @app.post("/api/chat", response_model=ChatResponse)
 def chat_genai(request: ChatRequest):

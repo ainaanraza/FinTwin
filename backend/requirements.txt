@@ -4,3 +4,5 @@ pydantic
 python-multipart
 boto3
 python-dotenv
+reportlab
+matplotlib

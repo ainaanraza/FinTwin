@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown';
 
 const STORAGE_KEY = 'twin-chat-history';
 
-const ChatInterface = () => {
+const ChatInterface = ({ initialPrompt = '', onPromptConsumed = () => {} }) => {
     const [messages, setMessages] = useState([
         { id: 1, type: 'bot', text: 'Hello! I am your Financial Digital Twin. Ask about spending, run simulations, or get budgeting advice.' }
     ]);
@@ -43,11 +43,10 @@ const ChatInterface = () => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
     }, [messages]);
 
-    const handleSend = async (e) => {
-        e.preventDefault();
-        if (!input.trim()) return;
+    const sendPrompt = async (text) => {
+        if (!text.trim()) return;
 
-        const userMsg = { id: Date.now(), type: 'user', text: input };
+        const userMsg = { id: Date.now(), type: 'user', text };
         setMessages(prev => [...prev, userMsg]);
         setInput('');
         setLoading(true);
@@ -71,9 +70,23 @@ const ChatInterface = () => {
         }
     };
 
+    const handleSend = async (e) => {
+        e.preventDefault();
+        if (!input.trim()) return;
+        await sendPrompt(input);
+    };
+
     const handlePrompt = (text) => {
         setInput(text);
     };
+
+    useEffect(() => {
+        if (initialPrompt) {
+            sendPrompt(initialPrompt);
+            onPromptConsumed();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialPrompt]);
 
     return (
         <div className="fade-in" style={{

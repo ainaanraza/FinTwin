@@ -4,6 +4,7 @@ import AnalyticsDashboard from './components/AnalyticsDashboard';
 import ChatInterface from './components/ChatInterface';
 import UserProfile from './components/UserProfile';
 import SmartSpendView from './components/SmartSpendView';
+import Notifications from './components/Notifications';
 import FloatingParticles from './components/FloatingParticles';
 import LandingPage from './components/LandingPage';
 import SignUp from './components/SignUp';
@@ -23,6 +24,7 @@ function App() {
         { id: 2, label: 'Europe Trip', value: 2700, target: 5000, color: '#3B82F6' },
         { id: 3, label: 'Car Downpayment', value: 3200, target: 10000, color: '#F59E0B' }
     ]);
+    const [pendingChatPrompt, setPendingChatPrompt] = useState('');
 
     const handleGetStarted = (email) => {
         setSignupEmail(email);
@@ -42,6 +44,11 @@ function App() {
     const handleBackToLanding = () => {
         setCurrentPage('landing');
         setSignupEmail('');
+    };
+
+    const handleChatPrompt = (promptText) => {
+        setPendingChatPrompt(promptText);
+        setActiveTab('chat');
     };
 
     if (currentPage === 'landing') {
@@ -86,6 +93,14 @@ function App() {
                 {activeTab === 'analytics' && <AnalyticsDashboard userGoals={userGoals} />}
                 {activeTab === 'chat' && <ChatInterface />}
                 {activeTab === 'goals' && <Goal userGoals={userGoals} onGoalUpdate={setUserGoals} />}
+                {activeTab === 'analytics' && <AnalyticsDashboard onChatPrompt={handleChatPrompt} />}
+                {activeTab === 'chat' && (
+                    <ChatInterface
+                        initialPrompt={pendingChatPrompt}
+                        onPromptConsumed={() => setPendingChatPrompt('')}
+                    />
+                )}
+                {activeTab === 'notifications' && <Notifications />}
                 {activeTab === 'profile' && <UserProfile />}
             </main>
 

@@ -1,48 +1,112 @@
 import React, { useEffect, useState } from 'react';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, BarChart, Bar, Cell } from 'recharts';
 import { ChevronRight, DollarSign, TrendingUp, ShieldCheck, Activity } from 'lucide-react';
 
 import leafPattern from '../assets/leaf_pattern.png';
 
 const AnalyticsDashboard = ({ userGoals = [] }) => {
-    const [data, setData] = useState([
+const AnalyticsDashboard = ({ onChatPrompt = () => {} }) => {
+     const [data, setData] = useState([
         { name: 'Jun', amount: 2400 }, { name: 'Jul', amount: 1398 },
         { name: 'Aug', amount: 9800 }, { name: 'Sep', amount: 3908 },
         { name: 'Oct', amount: 4800 }, { name: 'Nov', amount: 3800 }
     ]);
     const [balance, setBalance] = useState(13250);
     const [view, setView] = useState('expenses');
+    const [selectedMonth, setSelectedMonth] = useState('November');
+    const [showAllDeposits, setShowAllDeposits] = useState(false);
+    const [monthPulse, setMonthPulse] = useState(false);
+    const [exporting, setExporting] = useState(false);
 
-    const kpis = [
-        {
-            title: 'Cash Flow',
-            value: '+$2,908',
-            trend: '+6.4% MoM',
-            Icon: DollarSign,
-            positive: true
-        },
-        {
-            title: 'Savings Rate',
-            value: '31%',
-            trend: '+2.1 pts',
-            Icon: ShieldCheck,
-            positive: true
-        },
-        {
-            title: 'Discretionary',
-            value: '$1,120',
-            trend: '-8.2% MoM',
-            Icon: Activity,
-            positive: false
-        },
-        {
-            title: 'Investments',
-            value: '$48.2k',
-            trend: '+4.8% QoQ',
-            Icon: TrendingUp,
-            positive: true
-        }
-    ];
+    const monthOptions = ['November', 'October', 'September', 'August', 'July', 'June'];
+
+    const kpisByMonth = {
+        November: [
+            { title: 'Cash Flow', value: '+$2,908', trend: '+6.4% MoM', Icon: DollarSign, positive: true },
+            { title: 'Savings Rate', value: '31%', trend: '+2.1 pts', Icon: ShieldCheck, positive: true },
+            { title: 'Discretionary', value: '$1,120', trend: '-8.2% MoM', Icon: Activity, positive: false },
+            { title: 'Investments', value: '$48.2k', trend: '+4.8% QoQ', Icon: TrendingUp, positive: true }
+        ],
+        October: [
+            { title: 'Cash Flow', value: '+$2,420', trend: '+3.1% MoM', Icon: DollarSign, positive: true },
+            { title: 'Savings Rate', value: '28%', trend: '-1.4 pts', Icon: ShieldCheck, positive: false },
+            { title: 'Discretionary', value: '$1,340', trend: '+5.6% MoM', Icon: Activity, positive: false },
+            { title: 'Investments', value: '$47.6k', trend: '+3.2% QoQ', Icon: TrendingUp, positive: true }
+        ],
+        September: [
+            { title: 'Cash Flow', value: '+$2,115', trend: '+1.9% MoM', Icon: DollarSign, positive: true },
+            { title: 'Savings Rate', value: '26%', trend: '-0.7 pts', Icon: ShieldCheck, positive: false },
+            { title: 'Discretionary', value: '$1,410', trend: '+2.8% MoM', Icon: Activity, positive: false },
+            { title: 'Investments', value: '$46.9k', trend: '+2.6% QoQ', Icon: TrendingUp, positive: true }
+        ],
+        August: [
+            { title: 'Cash Flow', value: '+$2,780', trend: '+4.5% MoM', Icon: DollarSign, positive: true },
+            { title: 'Savings Rate', value: '29%', trend: '+1.2 pts', Icon: ShieldCheck, positive: true },
+            { title: 'Discretionary', value: '$1,210', trend: '-3.8% MoM', Icon: Activity, positive: true },
+            { title: 'Investments', value: '$46.1k', trend: '+2.1% QoQ', Icon: TrendingUp, positive: true }
+        ],
+        July: [
+            { title: 'Cash Flow', value: '+$1,980', trend: '-2.2% MoM', Icon: DollarSign, positive: false },
+            { title: 'Savings Rate', value: '25%', trend: '-2.3 pts', Icon: ShieldCheck, positive: false },
+            { title: 'Discretionary', value: '$1,520', trend: '+6.1% MoM', Icon: Activity, positive: false },
+            { title: 'Investments', value: '$45.4k', trend: '+1.4% QoQ', Icon: TrendingUp, positive: true }
+        ],
+        June: [
+            { title: 'Cash Flow', value: '+$2,350', trend: '+2.6% MoM', Icon: DollarSign, positive: true },
+            { title: 'Savings Rate', value: '27%', trend: '+0.8 pts', Icon: ShieldCheck, positive: true },
+            { title: 'Discretionary', value: '$1,260', trend: '-1.9% MoM', Icon: Activity, positive: true },
+            { title: 'Investments', value: '$44.8k', trend: '+1.0% QoQ', Icon: TrendingUp, positive: true }
+        ]
+    };
+
+    const kpis = kpisByMonth[selectedMonth] || kpisByMonth.November;
+
+    const categoryByMonth = {
+        November: [
+            { name: 'Housing', value: 1420, color: '#0f172a' },
+            { name: 'Groceries', value: 620, color: '#F59E0B' },
+            { name: 'Transport', value: 240, color: '#475569' },
+            { name: 'Dining', value: 310, color: '#ea580c' },
+            { name: 'Utilities', value: 190, color: '#1e293b' }
+        ],
+        October: [
+            { name: 'Housing', value: 1400, color: '#0f172a' },
+            { name: 'Groceries', value: 680, color: '#F59E0B' },
+            { name: 'Transport', value: 220, color: '#475569' },
+            { name: 'Dining', value: 340, color: '#ea580c' },
+            { name: 'Utilities', value: 210, color: '#1e293b' }
+        ],
+        September: [
+            { name: 'Housing', value: 1380, color: '#0f172a' },
+            { name: 'Groceries', value: 640, color: '#F59E0B' },
+            { name: 'Transport', value: 260, color: '#475569' },
+            { name: 'Dining', value: 295, color: '#ea580c' },
+            { name: 'Utilities', value: 205, color: '#1e293b' }
+        ],
+        August: [
+            { name: 'Housing', value: 1360, color: '#0f172a' },
+            { name: 'Groceries', value: 600, color: '#F59E0B' },
+            { name: 'Transport', value: 230, color: '#475569' },
+            { name: 'Dining', value: 280, color: '#ea580c' },
+            { name: 'Utilities', value: 195, color: '#1e293b' }
+        ],
+        July: [
+            { name: 'Housing', value: 1340, color: '#0f172a' },
+            { name: 'Groceries', value: 610, color: '#F59E0B' },
+            { name: 'Transport', value: 210, color: '#475569' },
+            { name: 'Dining', value: 260, color: '#ea580c' },
+            { name: 'Utilities', value: 190, color: '#1e293b' }
+        ],
+        June: [
+            { name: 'Housing', value: 1320, color: '#0f172a' },
+            { name: 'Groceries', value: 580, color: '#F59E0B' },
+            { name: 'Transport', value: 215, color: '#475569' },
+            { name: 'Dining', value: 250, color: '#ea580c' },
+            { name: 'Utilities', value: 185, color: '#1e293b' }
+        ]
+    };
+
+    const categoryData = categoryByMonth[selectedMonth] || categoryByMonth.November;
 
     useEffect(() => {
         // Fetch real data
@@ -103,6 +167,90 @@ const AnalyticsDashboard = ({ userGoals = [] }) => {
         { name: 'Salary', date: '1 Nov, 9:00 AM', amount: 5000.00, icon: '$', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' },
         { name: 'Freelance', date: '25 Oct, 2:00 PM', amount: 450.00, icon: 'F', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' }
     ];
+
+    const allDeposits = [
+        { name: 'Salary', date: '1 Nov, 9:00 AM', amount: 5000.00, icon: '$', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' },
+        { name: 'Freelance', date: '25 Oct, 2:00 PM', amount: 450.00, icon: 'F', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' },
+        { name: 'Project Bonus', date: '18 Oct, 4:15 PM', amount: 1200.00, icon: 'B', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' },
+        { name: 'Dividends', date: '15 Oct, 11:30 AM', amount: 210.50, icon: 'D', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' },
+        { name: 'Refund', date: '10 Oct, 1:05 PM', amount: 86.25, icon: 'R', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' },
+        { name: 'Cashback', date: '2 Oct, 6:20 PM', amount: 42.10, icon: 'C', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' },
+        { name: 'Stock Sale', date: '28 Sep, 3:45 PM', amount: 860.00, icon: 'S', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' },
+        { name: 'Client Retainer', date: '20 Sep, 10:10 AM', amount: 950.00, icon: 'R', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' }
+    ];
+
+    if (showAllDeposits) {
+        return (
+            <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingBottom: '1.5rem' }}>
+                <div className="container" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div className="section-heading" style={{ alignItems: 'center' }}>
+                        <h3>All Recent Deposits</h3>
+                        <button
+                            className="btn-secondary"
+                            onClick={() => setShowAllDeposits(false)}
+                            style={{ padding: '0.5rem 1rem' }}
+                        >
+                            Back
+                        </button>
+                    </div>
+
+                    <div className="card-float">
+                        <ul className="list-card" style={{ margin: 0 }}>
+                            {allDeposits.map((tx, i) => (
+                                <li key={i}>
+                                    <div style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 'clamp(0.75rem, 2vw, 1.25rem)',
+                                        minWidth: 0,
+                                        flex: 1
+                                    }}>
+                                        <div style={{
+                                            width: 'clamp(42px, 10vw, 52px)',
+                                            height: 'clamp(42px, 10vw, 52px)',
+                                            minWidth: '42px',
+                                            borderRadius: '50%',
+                                            background: tx.bg,
+                                            color: tx.color,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontWeight: 700,
+                                            fontSize: 'clamp(0.9rem, 2vw, 1.05rem)',
+                                            border: '1px solid rgba(0,0,0,0.05)'
+                                        }}>
+                                            {tx.icon}
+                                        </div>
+                                        <div style={{ minWidth: 0, flex: 1 }}>
+                                            <h4 style={{
+                                                fontSize: 'clamp(0.9rem, 2vw, 1.05rem)',
+                                                fontWeight: 700,
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap'
+                                            }}>
+                                                {tx.name}
+                                            </h4>
+                                            <p className="list-meta">{tx.date}</p>
+                                        </div>
+                                    </div>
+                                    <span style={{
+                                        fontWeight: 700,
+                                        fontSize: 'clamp(0.95rem, 2vw, 1.1rem)',
+                                        color: '#F59E0B',
+                                        whiteSpace: 'nowrap',
+                                        marginLeft: '0.5rem'
+                                    }}>
+                                        +{tx.amount}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingBottom: '1.5rem' }}>
@@ -180,9 +328,27 @@ const AnalyticsDashboard = ({ userGoals = [] }) => {
 
             {/* KPIs and Content */}
             <div className="container" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <div className="section-heading">
+                <div className="section-heading" style={{ alignItems: 'center', gap: '0.75rem' }}>
                     <h3>Portfolio Snapshot</h3>
-                    <span className="pill">November</span>
+                    <div className="month-select-wrap">
+                        <span className={`pill month-pill ${monthPulse ? 'pulse' : ''}`} key={selectedMonth}>
+                            {selectedMonth}
+                        </span>
+                        <select
+                            className="month-select"
+                            value={selectedMonth}
+                            onChange={(e) => {
+                                setSelectedMonth(e.target.value);
+                                setMonthPulse(true);
+                                setTimeout(() => setMonthPulse(false), 500);
+                            }}
+                            aria-label="Select month"
+                        >
+                            {monthOptions.map((month) => (
+                                <option key={month} value={month}>{month}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
                 <div className="kpi-grid">
@@ -275,10 +441,35 @@ const AnalyticsDashboard = ({ userGoals = [] }) => {
                                     color: 'white',
                                     borderColor: 'transparent',
                                     width: '100%',
-                                    boxShadow: 'var(--shadow-accent)'
+                                    boxShadow: 'var(--shadow-accent)',
+                                    opacity: exporting ? 0.8 : 1
                                 }}
+                                onClick={async () => {
+                                    try {
+                                        setExporting(true);
+                                        const res = await fetch('http://127.0.0.1:8000/api/export-summary');
+                                        if (!res.ok) {
+                                            const text = await res.text();
+                                            throw new Error(`Export failed (${res.status}): ${text}`);
+                                        }
+                                        const blob = await res.blob();
+                                        const url = window.URL.createObjectURL(blob);
+                                        const link = document.createElement('a');
+                                        link.href = url;
+                                        link.download = 'finTwin-summary.pdf';
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        link.remove();
+                                        window.URL.revokeObjectURL(url);
+                                    } catch (e) {
+                                        console.error('Export failed', e);
+                                    } finally {
+                                        setExporting(false);
+                                    }
+                                }}
+                                disabled={exporting}
                             >
-                                Export summary
+                                {exporting ? 'Preparing…' : 'Export summary'}
                             </button>
                         </div>
                     </div>
@@ -287,7 +478,14 @@ const AnalyticsDashboard = ({ userGoals = [] }) => {
                     <div className="card-float" style={{ padding: 'clamp(1rem, 3vw, 1.75rem)' }}>
                         <div className="section-heading" style={{ marginBottom: '0.75rem' }}>
                             <h3>{view === 'income' ? 'Recent Deposits' : 'Transactions'}</h3>
-                            <span className="pill-soft" style={{ cursor: 'pointer' }}>
+                            <span
+                                className="pill-soft"
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => setShowAllDeposits(true)}
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => e.key === 'Enter' && setShowAllDeposits(true)}
+                            >
                                 View all <ChevronRight size={16} />
                             </span>
                         </div>
@@ -343,6 +541,40 @@ const AnalyticsDashboard = ({ userGoals = [] }) => {
                                 </li>
                             ))}
                         </ul>
+                    </div>
+                </div>
+
+                {/* Category Breakdown Chart */}
+                <div className="card-float" style={{ borderTop: '4px solid var(--accent-black)', minWidth: 0 }}>
+                    <div className="section-heading" style={{ marginBottom: '0.75rem', alignItems: 'center', gap: '0.5rem' }}>
+                        <h3>Spending Breakdown</h3>
+                        <span className="pill-soft">{selectedMonth}</span>
+                    </div>
+                    <div style={{ height: 'clamp(220px, 32vh, 280px)', width: '100%' }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={categoryData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
+                                <XAxis dataKey="name" stroke="#64748b" tick={{ fill: '#64748b', fontSize: 12, fontWeight: 600 }} />
+                                <YAxis stroke="#64748b" tick={{ fill: '#64748b', fontSize: 12, fontWeight: 600 }} />
+                                <Tooltip
+                                    cursor={{ fill: 'rgba(15, 23, 42, 0.04)' }}
+                                    contentStyle={{
+                                        borderRadius: '1rem',
+                                        border: '1px solid rgba(15,23,42,0.08)',
+                                        boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
+                                        fontWeight: 600
+                                    }}
+                                />
+                                <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                                    {categoryData.map((entry, index) => (
+                                        <Cell
+                                            key={`cell-${index}`}
+                                            fill={entry.color}
+                                        />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
                     </div>
                 </div>
 
@@ -412,26 +644,30 @@ const AnalyticsDashboard = ({ userGoals = [] }) => {
                                 Cash flow remains strong. You can increase investments by $250 this month without impacting emergency reserves.
                             </p>
                             <div className="prompt-row">
-                                <span
+                                <button
+                                    type="button"
                                     className="prompt-btn"
                                     style={{
                                         background: 'rgba(255,255,255,0.08)',
                                         color: 'white',
                                         borderColor: 'rgba(255,255,255,0.1)'
                                     }}
+                                    onClick={() => onChatPrompt('Ask to rebalance')}
                                 >
                                     Ask to rebalance
-                                </span>
-                                <span
+                                </button>
+                                <button
+                                    type="button"
                                     className="prompt-btn"
                                     style={{
                                         background: 'rgba(255,255,255,0.08)',
                                         color: 'white',
                                         borderColor: 'rgba(255,255,255,0.1)'
                                     }}
+                                    onClick={() => onChatPrompt('Show spending leaks')}
                                 >
                                     Show spending leaks
-                                </span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -439,6 +675,50 @@ const AnalyticsDashboard = ({ userGoals = [] }) => {
             </div>
 
             <style>{`
+                .month-select-wrap {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.6rem;
+                }
+
+                .month-pill {
+                    transition: transform 0.25s ease, box-shadow 0.25s ease;
+                }
+
+                .month-pill.pulse {
+                    animation: pillPop 0.4s ease;
+                    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+                }
+
+                .month-select {
+                    appearance: none;
+                    padding: 0.45rem 1.9rem 0.45rem 0.75rem;
+                    border-radius: 999px;
+                    border: 1px solid rgba(15, 23, 42, 0.12);
+                    background: white;
+                    font-weight: 600;
+                    font-size: 0.85rem;
+                    color: #0f172a;
+                    background-image: linear-gradient(45deg, transparent 50%, #0f172a 50%),
+                        linear-gradient(135deg, #0f172a 50%, transparent 50%),
+                        linear-gradient(to right, #ffffff, #ffffff);
+                    background-position: calc(100% - 16px) calc(0.55rem), calc(100% - 11px) calc(0.55rem), 100% 0;
+                    background-size: 5px 5px, 5px 5px, 2.2rem 100%;
+                    background-repeat: no-repeat;
+                    cursor: pointer;
+                }
+
+                .month-select:focus {
+                    outline: none;
+                    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.15);
+                }
+
+                @keyframes pillPop {
+                    0% { transform: scale(1); }
+                    40% { transform: scale(1.05) translateY(-1px); }
+                    100% { transform: scale(1); }
+                }
+
                 @media (min-width: 641px) {
                     .leaf-pattern-img {
                         top: -150px !important;
