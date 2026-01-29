@@ -1,0 +1,11 @@
+{
+    "name": "fintwin-root",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "vercel-build": "cd frontend && npm install --legacy-peer-deps && npm run build"
+    },
+    "engines": {
+        "node": "24.x"
+    }
+}

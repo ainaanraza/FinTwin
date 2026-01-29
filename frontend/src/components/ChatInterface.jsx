@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 const STORAGE_KEY = 'twin-chat-history';
 
@@ -52,7 +53,7 @@ const ChatInterface = () => {
         setLoading(true);
 
         try {
-            const response = await fetch('http://localhost:8000/api/chat', {
+            const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: userMsg.text })
@@ -75,30 +76,30 @@ const ChatInterface = () => {
     };
 
     return (
-        <div className="fade-in" style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
+        <div className="fade-in" style={{
+            display: 'flex',
+            flexDirection: 'column',
             height: '100%',
             maxHeight: '100%',
             overflow: 'hidden'
         }}>
             {/* Header */}
-            <div className="header-curve" style={{ 
-                padding: 'clamp(1.5rem, 4vw, 2rem) 1rem 1rem', 
-                borderRadius: '0 0 2rem 2rem', 
+            <div className="header-curve" style={{
+                padding: 'clamp(1.5rem, 4vw, 2rem) 1rem 1rem',
+                borderRadius: '0 0 2rem 2rem',
                 marginBottom: 0,
                 flexShrink: 0
             }}>
                 <div style={{ textAlign: 'center' }}>
-                    <h2 style={{ 
-                        fontSize: 'clamp(1.25rem, 4vw, 1.5rem)', 
-                        fontWeight: 700 
+                    <h2 style={{
+                        fontSize: 'clamp(1.25rem, 4vw, 1.5rem)',
+                        fontWeight: 700
                     }}>
                         AI Advisor
                     </h2>
-                    <p style={{ 
-                        opacity: 0.8, 
-                        fontSize: 'clamp(0.85rem, 2vw, 0.95rem)' 
+                    <p style={{
+                        opacity: 0.8,
+                        fontSize: 'clamp(0.85rem, 2vw, 0.95rem)'
                     }}>
                         Powered by IBM Granite
                     </p>
@@ -106,22 +107,22 @@ const ChatInterface = () => {
             </div>
 
             {/* Chat Container */}
-            <div className="main-content" style={{ 
-                marginTop: '-1rem', 
-                paddingTop: 0, 
+            <div className="main-content" style={{
+                marginTop: '-1rem',
+                paddingTop: 0,
                 paddingBottom: '1rem',
-                display: 'flex', 
-                flexDirection: 'column', 
+                display: 'flex',
+                flexDirection: 'column',
                 flex: 1,
                 minHeight: 0,
                 zIndex: 20,
                 overflow: 'hidden'
             }}>
-                <div className="card-float" style={{ 
+                <div className="card-float" style={{
                     flex: 1,
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    margin: '0 auto', 
+                    display: 'flex',
+                    flexDirection: 'column',
+                    margin: '0 auto',
                     maxWidth: '880px',
                     width: '100%',
                     height: '100%',
@@ -129,10 +130,10 @@ const ChatInterface = () => {
                     minHeight: 0
                 }}>
                     {/* Messages Area */}
-                    <div 
-                        className="chat-shell" 
-                        ref={chatRef} 
-                        style={{ 
+                    <div
+                        className="chat-shell"
+                        ref={chatRef}
+                        style={{
                             flex: 1,
                             overflowY: 'auto',
                             minHeight: 0,
@@ -141,14 +142,14 @@ const ChatInterface = () => {
                         }}
                     >
                         {/* Prompt Ideas */}
-                        <div className="prompt-row" style={{ 
+                        <div className="prompt-row" style={{
                             flexShrink: 0,
                             marginBottom: '1rem'
                         }}>
                             {promptIdeas.map((idea) => (
-                                <button 
-                                    key={idea} 
-                                    className="prompt-btn" 
+                                <button
+                                    key={idea}
+                                    className="prompt-btn"
                                     onClick={() => handlePrompt(idea)}
                                 >
                                     {idea}
@@ -158,22 +159,25 @@ const ChatInterface = () => {
 
                         {/* Messages */}
                         {messages.map((msg) => (
-                            <div 
-                                key={msg.id} 
-                                className="message-row" 
-                                style={{ 
+                            <div
+                                key={msg.id}
+                                className="message-row"
+                                style={{
                                     justifyContent: msg.type === 'user' ? 'flex-end' : 'flex-start',
                                     flexShrink: 0
                                 }}
                             >
+
                                 <div className={`message-bubble ${msg.type === 'user' ? 'message-user' : 'message-bot'}`}>
-                                    <p style={{ margin: 0, wordBreak: 'break-word' }}>{msg.text}</p>
+                                    <div className="markdown-content">
+                                        <ReactMarkdown>{msg.text}</ReactMarkdown>
+                                    </div>
                                     {msg.context && msg.context.length > 0 && (
-                                        <div style={{ 
-                                            marginTop: '0.75rem', 
-                                            display: 'flex', 
-                                            gap: '0.5rem', 
-                                            flexWrap: 'wrap' 
+                                        <div style={{
+                                            marginTop: '0.75rem',
+                                            display: 'flex',
+                                            gap: '0.5rem',
+                                            flexWrap: 'wrap'
                                         }}>
                                             {msg.context.slice(0, 3).map((ctx, idx) => (
                                                 <span key={idx} className="context-chip">{ctx}</span>
@@ -188,8 +192,8 @@ const ChatInterface = () => {
                         {loading && (
                             <div className="message-row" style={{ flexShrink: 0 }}>
                                 <div className="message-bubble message-bot">
-                                    <span 
-                                        className="shimmer-text" 
+                                    <span
+                                        className="shimmer-text"
                                         style={{
                                             background: 'linear-gradient(90deg, var(--text-secondary) 0%, #f0f0f0 50%, var(--text-secondary) 100%)',
                                             backgroundSize: '200% 100%',
@@ -209,12 +213,12 @@ const ChatInterface = () => {
                     </div>
 
                     {/* Input Form */}
-                    <form 
-                        onSubmit={handleSend} 
-                        style={{ 
-                            padding: 'clamp(0.75rem, 2vw, 1rem)', 
-                            background: 'rgba(248,250,252,0.95)', 
-                            borderTop: '1px solid var(--border)', 
+                    <form
+                        onSubmit={handleSend}
+                        style={{
+                            padding: 'clamp(0.75rem, 2vw, 1rem)',
+                            background: 'rgba(248,250,252,0.95)',
+                            borderTop: '1px solid var(--border)',
                             backdropFilter: 'blur(10px)',
                             flexShrink: 0
                         }}

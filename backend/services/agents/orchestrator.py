@@ -42,4 +42,4 @@ class AdvisorAgent:
     def provide_advice(query: str, context: list):
         # General advice combining RAG context
         context_str = " ".join(context) if context else ""
-        return BedrockService.generate_response(f"Context: {context_str}. User Query: {query}. Provide helpful financial advice.")
+        return BedrockService.generate_response(f"Context: {context_str}. User Query: {query}. Provide helpful financial advice. Structure your response with bold headings and subheadings to organize the information effectively.")

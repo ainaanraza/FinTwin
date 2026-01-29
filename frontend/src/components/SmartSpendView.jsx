@@ -135,44 +135,25 @@ const SmartSpendView = ({ onClose }) => {
     const performMockScan = () => {
         setAnalyzing(true);
         setTimeout(() => {
-            const mockItem = {
-                item: "Sony Headphones",
-                price: 150,
-                category: "Shopping"
-            };
-            
-            const budget = budgets.find(b => b.category === mockItem.category && b.active);
-            
-            if (budget) {
-                const wouldExceed = (budget.spent + mockItem.price) > budget.limit;
-                setScanResult({
-                    ...mockItem,
-                    allowed: !wouldExceed,
-                    currentSpent: budget.spent,
-                    budgetLimit: budget.limit,
-                    alert: wouldExceed ? `Exceeds your remaining budget by $${(budget.spent + mockItem.price - budget.limit).toFixed(2)}` : null,
-                    suggestion: wouldExceed ? 'Consider reducing your purchase or adjusting your budget.' : 'This purchase fits your budget!'
-                });
-                
-                if (wouldExceed) {
-                    setNotification({
-                        type: 'alert',
-                        title: 'Budget Alert!',
-                        message: `This purchase would exceed your ${mockItem.category} budget`,
-                        category: mockItem.category
+            fetch('http://localhost:8000/api/smartspend', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: 650, category: 'Shopping' })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    setScanResult({
+                        item: "Sony Headphones",
+                        price: 650,
+                        category: "Shopping",
+                        ...data
                     });
-                }
-            } else {
-                setScanResult({
-                    ...mockItem,
-                    allowed: false,
-                    alert: `No active budget for ${mockItem.category}`,
-                    suggestion: 'Enable a budget for this category to track spending.'
+                    setAnalyzing(false);
+                })
+                .catch(err => {
+                    console.error(err);
+                    setAnalyzing(false);
                 });
-            }
-            
-            setAnalyzing(false);
-            setView('scan');
         }, 2000);
     };
 
@@ -199,29 +180,29 @@ const SmartSpendView = ({ onClose }) => {
 
     return (
         <div style={{
-            position: 'fixed', 
-            top: 0, 
-            left: 0, 
-            right: 0, 
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
             bottom: 0,
             background: 'linear-gradient(135deg, rgba(0,0,0,0.85) 0%, rgba(15,23,42,0.92) 50%, rgba(212,175,55,0.15) 100%)',
             backdropFilter: 'blur(12px)',
-            zIndex: 100, 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
+            zIndex: 100,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
             justifyContent: 'center',
-            padding: 'clamp(1rem, 4vw, 2rem)', 
+            padding: 'clamp(1rem, 4vw, 2rem)',
             animation: 'fadeIn 0.3s ease-out',
             overflow: 'auto'
         }}>
             {/* Close Button */}
-            <button 
-                onClick={onClose} 
-                style={{ 
-                    position: 'absolute', 
-                    top: 'clamp(1rem, 3vw, 2rem)', 
-                    right: 'clamp(1rem, 3vw, 2rem)', 
+            <button
+                onClick={onClose}
+                style={{
+                    position: 'absolute',
+                    top: 'clamp(1rem, 3vw, 2rem)',
+                    right: 'clamp(1rem, 3vw, 2rem)',
                     color: 'white',
                     background: 'rgba(255,255,255,0.1)',
                     border: '1px solid rgba(255,255,255,0.2)',
@@ -239,320 +220,78 @@ const SmartSpendView = ({ onClose }) => {
                 <X size={24} />
             </button>
 
-            {/* Notification */}
-            {notification && (
-                <div style={{
-                    position: 'absolute',
-                    top: 'clamp(1rem, 3vw, 2rem)',
-                    left: 'clamp(1rem, 3vw, 2rem)',
-                    right: 'clamp(1rem, 3vw, 2rem)',
-                    maxWidth: '500px',
-                    background: notification.type === 'alert' ? '#FEE2E2' : '#FEF3C7',
-                    border: `2px solid ${notification.type === 'alert' ? '#EF4444' : '#F59E0B'}`,
-                    borderRadius: '0.75rem',
-                    padding: '1rem',
-                    display: 'flex',
-                    gap: '0.75rem',
-                    alignItems: 'flex-start',
-                    animation: 'slideDown 0.3s ease-out',
-                    zIndex: 101
-                }}>
-                    <Bell size={20} style={{ color: notification.type === 'alert' ? '#EF4444' : '#F59E0B', marginTop: '0.25rem', flexShrink: 0 }} />
-                    <div>
-                        <h4 style={{ margin: '0 0 0.25rem 0', color: notification.type === 'alert' ? '#DC2626' : '#D97706', fontWeight: 700 }}>
-                            {notification.title}
-                        </h4>
-                        <p style={{ margin: 0, color: notification.type === 'alert' ? '#991B1B' : '#92400E', fontSize: '0.9rem' }}>
-                            {notification.message}
-                        </p>
-                    </div>
-                </div>
-            )}
-
-            {view === 'budget' ? (
+            {!scanResult ? (
                 <div style={{ 
-                    maxWidth: '600px',
-                    width: '100%',
-                    color: 'white'
+                    textAlign: 'center', 
+                    color: 'white',
+                    maxWidth: '500px',
+                    width: '100%'
                 }}>
-                    {/* Header */}
-                    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                        <h2 style={{ 
-                            fontSize: 'clamp(1.5rem, 5vw, 2rem)', 
-                            marginBottom: '0.5rem', 
-                            fontWeight: 700
+                    <h2 style={{ 
+                        fontSize: 'clamp(1.5rem, 5vw, 2rem)', 
+                        marginBottom: '1rem', 
+                        fontFamily: 'var(--font-family)', 
+                        fontWeight: 300,
+                        lineHeight: 1.2
+                    }}>
+                        Smart<span style={{ fontWeight: 700, color: 'var(--accent-gold)' }}>Spend</span>
+                    </h2>
+                    <p style={{ 
+                        marginBottom: 'clamp(2rem, 6vw, 4rem)', 
+                        opacity: 0.8, 
+                        letterSpacing: '0.05em',
+                        fontSize: 'clamp(0.85rem, 2vw, 1rem)'
+                    }}>
+                        Scan product to analyze budget fit.
+                    </p>
+
+                    <div className="prompt-row" style={{ 
+                        justifyContent: 'center', 
+                        marginBottom: '1.5rem' 
+                    }}>
+                        <span className="context-chip" style={{ 
+                            background: 'rgba(255,255,255,0.1)', 
+                            color: 'white', 
+                            borderColor: 'rgba(255,255,255,0.2)' 
                         }}>
-                            Smart<span style={{ color: 'var(--accent-gold)' }}>Spend</span> Budgets
-                        </h2>
-                        <p style={{ 
-                            opacity: 0.8, 
-                            letterSpacing: '0.05em',
-                            fontSize: 'clamp(0.85rem, 2vw, 1rem)',
-                            margin: 0
+                            Budget Guard
+                        </span>
+                        <span className="context-chip" style={{ 
+                            background: 'rgba(255,255,255,0.1)', 
+                            color: 'white', 
+                            borderColor: 'rgba(255,255,255,0.2)' 
                         }}>
-                            Activate budgets and track your spending in real-time
-                        </p>
+                            Real-time Alerts
+                        </span>
                     </div>
 
-                    {/* Budget Cards */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem', maxHeight: '60vh', overflowY: 'auto' }}>
-                        {budgets.map(budget => {
-                            const percentage = getPercentage(budget.spent, budget.limit);
-                            const isOverBudget = budget.spent > budget.limit;
-                            
-                            return (
-                                <div 
-                                    key={budget.id}
-                                    style={{
-                                        background: budget.active ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.05)',
-                                        border: `2px solid ${budget.active ? '#10B981' : 'rgba(255,255,255,0.1)'}`,
-                                        borderRadius: '0.75rem',
-                                        padding: '1rem',
-                                        transition: 'all 0.2s'
-                                    }}
-                                >
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem', gap: '0.5rem' }}>
-                                        <div style={{ flex: 1 }}>
-                                            <h3 style={{ margin: '0 0 0.25rem 0', color: 'white', fontWeight: 700 }}>
-                                                {budget.category}
-                                            </h3>
-                                            <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.7 }}>
-                                                {budget.period}
-                                            </p>
-                                            {budget.active && budget.endTime && (
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.35rem', fontSize: '0.8rem', color: '#86EFAC' }}>
-                                                    <Clock size={14} />
-                                                    {getTimeRemaining(budget.endTime)}
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                            <button
-                                                onClick={() => handleToggleBudget(budget.id)}
-                                                style={{
-                                                    padding: '0.5rem 1rem',
-                                                    background: budget.active ? '#10B981' : 'rgba(255,255,255,0.1)',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    borderRadius: '0.5rem',
-                                                    cursor: 'pointer',
-                                                    fontWeight: 600,
-                                                    fontSize: '0.85rem',
-                                                    transition: 'all 0.2s'
-                                                }}
-                                            >
-                                                {budget.active ? 'Active' : 'Inactive'}
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteBudget(budget.id)}
-                                                style={{
-                                                    padding: '0.5rem 0.75rem',
-                                                    background: 'rgba(239, 68, 68, 0.2)',
-                                                    color: '#FCA5A5',
-                                                    border: 'none',
-                                                    borderRadius: '0.5rem',
-                                                    cursor: 'pointer',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center'
-                                                }}
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    {/* Amount and Progress */}
-                                    <div style={{ marginBottom: '0.75rem' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-                                            <span>${budget.spent.toFixed(2)} / ${budget.limit.toFixed(2)}</span>
-                                            <span style={{ color: isOverBudget ? '#FCA5A5' : '#86EFAC' }}>
-                                                {percentage}%
-                                            </span>
-                                        </div>
-                                        <div style={{
-                                            background: 'rgba(0,0,0,0.3)',
-                                            height: '6px',
-                                            borderRadius: '3px',
-                                            overflow: 'hidden'
-                                        }}>
-                                            <div style={{
-                                                width: `${Math.min(percentage, 100)}%`,
-                                                height: '100%',
-                                                background: isOverBudget ? '#FCA5A5' : '#10B981',
-                                                transition: 'width 0.3s ease'
-                                            }} />
-                                        </div>
-                                    </div>
-
-                                    {isOverBudget && (
-                                        <div style={{
-                                            background: 'rgba(239, 68, 68, 0.1)',
-                                            border: '1px solid rgba(252, 165, 165, 0.5)',
-                                            borderRadius: '0.5rem',
-                                            padding: '0.5rem 0.75rem',
-                                            fontSize: '0.85rem',
-                                            color: '#FCA5A5',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '0.5rem'
-                                        }}>
-                                            <AlertTriangle size={16} />
-                                            Over budget by ${(budget.spent - budget.limit).toFixed(2)}
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-
-                    {/* Add Budget Form */}
-                    {showForm && (
-                        <div style={{
-                            background: 'rgba(255,255,255,0.05)',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            borderRadius: '0.75rem',
-                            padding: '1rem',
-                            marginBottom: '1rem',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '0.75rem'
-                        }}>
-                            <select
-                                value={newBudget.category}
-                                onChange={(e) => setNewBudget({ ...newBudget, category: e.target.value })}
-                                style={{
-                                    padding: '0.75rem',
-                                    borderRadius: '0.5rem',
-                                    border: '1px solid rgba(255,255,255,0.2)',
-                                    background: 'rgba(0,0,0,0.3)',
-                                    color: 'white',
-                                    fontFamily: 'var(--font-primary)',
-                                    fontSize: '0.95rem'
-                                }}
-                            >
-                                <option value="">Select Category</option>
-                                {categories.map(cat => (
-                                    <option key={cat} value={cat}>{cat}</option>
-                                ))}
-                            </select>
-
-                            <input
-                                type="number"
-                                placeholder="Budget Limit ($)"
-                                value={newBudget.limit}
-                                onChange={(e) => setNewBudget({ ...newBudget, limit: e.target.value })}
-                                style={{
-                                    padding: '0.75rem',
-                                    borderRadius: '0.5rem',
-                                    border: '1px solid rgba(255,255,255,0.2)',
-                                    background: 'rgba(0,0,0,0.3)',
-                                    color: 'white',
-                                    fontFamily: 'var(--font-primary)',
-                                    fontSize: '0.95rem'
-                                }}
-                                min="0"
-                            />
-
-                            <div style={{ display: 'flex', gap: '0.75rem' }}>
-                                <input
-                                    type="text"
-                                    placeholder="Duration (e.g., 2h 30m or 45m)"
-                                    value={newBudget.duration}
-                                    onChange={(e) => setNewBudget({ ...newBudget, duration: e.target.value })}
-                                    style={{
-                                        flex: 1,
-                                        padding: '0.75rem',
-                                        borderRadius: '0.5rem',
-                                        border: '1px solid rgba(255,255,255,0.2)',
-                                        background: 'rgba(0,0,0,0.3)',
-                                        color: 'white',
-                                        fontFamily: 'var(--font-primary)',
-                                        fontSize: '0.95rem'
-                                    }}
-                                />
-                            </div>
-
-                            <div style={{ display: 'flex', gap: '0.75rem' }}>
-                                <button
-                                    onClick={handleAddBudget}
-                                    style={{
-                                        flex: 1,
-                                        padding: '0.75rem',
-                                        background: 'var(--accent-gold)',
-                                        color: '#0f172a',
-                                        border: 'none',
-                                        borderRadius: '0.5rem',
-                                        fontWeight: 700,
-                                        cursor: 'pointer'
-                                    }}
-                                >
-                                    Create
-                                </button>
-                                <button
-                                    onClick={() => setShowForm(false)}
-                                    style={{
-                                        flex: 1,
-                                        padding: '0.75rem',
-                                        background: 'rgba(255,255,255,0.1)',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '0.5rem',
-                                        fontWeight: 700,
-                                        cursor: 'pointer'
-                                    }}
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Action Buttons */}
-                    <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                        <button
-                            onClick={() => setShowForm(!showForm)}
-                            style={{
-                                padding: '0.75rem 1.5rem',
-                                background: 'rgba(255,255,255,0.1)',
-                                color: 'white',
-                                border: '1px solid rgba(255,255,255,0.2)',
-                                borderRadius: '0.5rem',
-                                cursor: 'pointer',
-                                fontWeight: 600,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.5rem',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            <Plus size={18} />
-                            New Budget
-                        </button>
-
-                        <button
-                            onClick={performMockScan}
-                            style={{
-                                padding: '0.75rem 1.5rem',
-                                background: 'var(--accent-gold)',
-                                color: '#0f172a',
-                                border: 'none',
-                                borderRadius: '0.5rem',
-                                cursor: analyzing ? 'not-allowed' : 'pointer',
-                                fontWeight: 700,
-                                opacity: analyzing ? 0.6 : 1,
-                                transition: 'all 0.2s'
-                            }}
-                            disabled={analyzing}
-                        >
-                            {analyzing ? 'Scanning...' : 'Scan Item'}
-                        </button>
-                    </div>
+                    <button
+                        onClick={performMockScan}
+                        disabled={analyzing}
+                        style={{
+                            width: 'clamp(180px, 40vw, 220px)', 
+                            height: 'clamp(180px, 40vw, 220px)', 
+                            borderRadius: '50%',
+                            background: analyzing ? 'transparent' : 'black',
+                            border: '2px solid var(--accent-gold)',
+                            color: 'var(--accent-gold)',
+                            fontSize: 'clamp(1rem, 2.5vw, 1.25rem)', 
+                            fontWeight: 600, 
+                            letterSpacing: '0.1em',
+                            boxShadow: analyzing ? '0 0 50px rgba(212, 175, 55, 0.4)' : '0 10px 40px rgba(0,0,0,0.5)',
+                            transition: 'all 0.4s ease',
+                            animation: analyzing ? 'pulse 1.5s infinite' : 'none',
+                            textTransform: 'uppercase',
+                            cursor: analyzing ? 'not-allowed' : 'pointer'
+                        }}
+                    >
+                        {analyzing ? 'Scanning...' : 'TAP TO SCAN'}
+                    </button>
                 </div>
             ) : (
-                <div 
-                    className="card-float" 
-                    style={{ 
+                <div
+                    className="card-float"
+                    style={{
                         animation: 'slideUp 0.4s ease-out',
                         maxWidth: '500px',
                         width: '100%',
@@ -560,46 +299,46 @@ const SmartSpendView = ({ onClose }) => {
                     }}
                 >
                     {/* Scan Result Header */}
-                    <div style={{ 
-                        textAlign: 'center', 
-                        paddingBottom: '1.5rem', 
-                        borderBottom: '1px solid #f3f4f6' 
+                    <div style={{
+                        textAlign: 'center',
+                        paddingBottom: '1.5rem',
+                        borderBottom: '1px solid #f3f4f6'
                     }}>
-                        <p style={{ 
-                            color: '#9ca3af', 
+                        <p style={{
+                            color: '#9ca3af',
                             fontSize: 'clamp(0.8rem, 2vw, 0.9rem)',
                             marginBottom: '0.5rem'
                         }}>
                             Scanned Item
                         </p>
-                        <h3 style={{ 
-                            fontSize: 'clamp(1.25rem, 3vw, 1.5rem)', 
+                        <h3 style={{
+                            fontSize: 'clamp(1.25rem, 3vw, 1.5rem)',
                             margin: '0.5rem 0',
                             fontWeight: 700
                         }}>
                             {scanResult.item}
                         </h3>
-                        <p style={{ 
-                            fontSize: 'clamp(1.5rem, 4vw, 2rem)', 
-                            fontWeight: 700, 
-                            color: '#1f2937' 
+                        <p style={{
+                            fontSize: 'clamp(1.5rem, 4vw, 2rem)',
+                            fontWeight: 700,
+                            color: '#1f2937'
                         }}>
                             ${scanResult.price}
                         </p>
                     </div>
 
                     {/* Result Content */}
-                    <div style={{ 
-                        padding: 'clamp(1.5rem, 4vw, 2rem) clamp(0.75rem, 2vw, 1rem)', 
-                        textAlign: 'center' 
+                    <div style={{
+                        padding: 'clamp(1.5rem, 4vw, 2rem) clamp(0.75rem, 2vw, 1rem)',
+                        textAlign: 'center'
                     }}>
                         {scanResult.allowed ? (
-                            <div style={{ 
-                                color: 'var(--text-main)', 
-                                display: 'flex', 
-                                flexDirection: 'column', 
-                                alignItems: 'center', 
-                                gap: '1rem' 
+                            <div style={{
+                                color: 'var(--text-main)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: '1rem'
                             }}>
                                 <div style={{
                                     border: '2px solid #000',
@@ -609,15 +348,15 @@ const SmartSpendView = ({ onClose }) => {
                                 }}>
                                     <Check size={32} />
                                 </div>
-                                <h3 style={{ 
-                                    fontSize: 'clamp(1.25rem, 3vw, 1.5rem)', 
-                                    fontWeight: 700 
+                                <h3 style={{
+                                    fontSize: 'clamp(1.25rem, 3vw, 1.5rem)',
+                                    fontWeight: 700
                                 }}>
                                     Safe to Buy
                                 </h3>
-                                <p style={{ 
-                                    color: '#666', 
-                                    fontSize: 'clamp(0.85rem, 2vw, 0.95rem)' 
+                                <p style={{
+                                    color: '#666',
+                                    fontSize: 'clamp(0.85rem, 2vw, 0.95rem)'
                                 }}>
                                     This fits within your {scanResult.category} budget.
                                 </p>
@@ -632,12 +371,12 @@ const SmartSpendView = ({ onClose }) => {
                                 </div>
                             </div>
                         ) : (
-                            <div style={{ 
-                                color: 'var(--text-main)', 
-                                display: 'flex', 
-                                flexDirection: 'column', 
-                                alignItems: 'center', 
-                                gap: '1rem' 
+                            <div style={{
+                                color: 'var(--text-main)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: '1rem'
                             }}>
                                 <div style={{
                                     border: '2px solid #000',
@@ -647,14 +386,14 @@ const SmartSpendView = ({ onClose }) => {
                                 }}>
                                     <AlertTriangle size={32} />
                                 </div>
-                                <h3 style={{ 
-                                    fontSize: 'clamp(1.25rem, 3vw, 1.5rem)', 
-                                    fontWeight: 700 
+                                <h3 style={{
+                                    fontSize: 'clamp(1.25rem, 3vw, 1.5rem)',
+                                    fontWeight: 700
                                 }}>
                                     Over Budget
                                 </h3>
-                                <p style={{ 
-                                    color: '#666', 
+                                <p style={{
+                                    color: '#666',
                                     fontWeight: 500,
                                     fontSize: 'clamp(0.85rem, 2vw, 0.95rem)'
                                 }}>
@@ -674,18 +413,18 @@ const SmartSpendView = ({ onClose }) => {
                                 </div>
                             </div>
                         )}
-                        
+
                         {/* Action Buttons */}
-                        <div style={{ 
-                            marginTop: '1.5rem', 
-                            display: 'flex', 
-                            gap: '0.75rem', 
+                        <div style={{
+                            marginTop: '1.5rem',
+                            display: 'flex',
+                            gap: '0.75rem',
                             justifyContent: 'center',
                             flexWrap: 'wrap'
                         }}>
                             <button 
                                 className="btn-secondary" 
-                                onClick={() => setView('budget')} 
+                                onClick={performMockScan} 
                                 style={{ 
                                     background: 'white', 
                                     color: '#0f172a',
@@ -694,12 +433,12 @@ const SmartSpendView = ({ onClose }) => {
                             >
                                 Back
                             </button>
-                            <button 
-                                className="btn-secondary" 
-                                onClick={onClose} 
-                                style={{ 
-                                    background: '#0f172a', 
-                                    color: 'var(--accent-gold)', 
+                            <button
+                                className="btn-secondary"
+                                onClick={onClose}
+                                style={{
+                                    background: '#0f172a',
+                                    color: 'var(--accent-gold)',
                                     borderColor: 'var(--accent-gold)',
                                     flex: '1 1 120px'
                                 }}
