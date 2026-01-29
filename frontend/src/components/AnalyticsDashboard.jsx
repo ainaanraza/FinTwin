@@ -4,7 +4,7 @@ import { ChevronRight, DollarSign, TrendingUp, ShieldCheck, Activity } from 'luc
 
 import leafPattern from '../assets/leaf_pattern.png';
 
-const AnalyticsDashboard = () => {
+const AnalyticsDashboard = ({ onChatPrompt = () => {} }) => {
     const [data, setData] = useState([
         { name: 'Jun', amount: 2400 }, { name: 'Jul', amount: 1398 },
         { name: 'Aug', amount: 9800 }, { name: 'Sep', amount: 3908 },
@@ -614,26 +614,30 @@ const AnalyticsDashboard = () => {
                                 Cash flow remains strong. You can increase investments by $250 this month without impacting emergency reserves.
                             </p>
                             <div className="prompt-row">
-                                <span
+                                <button
+                                    type="button"
                                     className="prompt-btn"
                                     style={{
                                         background: 'rgba(255,255,255,0.08)',
                                         color: 'white',
                                         borderColor: 'rgba(255,255,255,0.1)'
                                     }}
+                                    onClick={() => onChatPrompt('Ask to rebalance')}
                                 >
                                     Ask to rebalance
-                                </span>
-                                <span
+                                </button>
+                                <button
+                                    type="button"
                                     className="prompt-btn"
                                     style={{
                                         background: 'rgba(255,255,255,0.08)',
                                         color: 'white',
                                         borderColor: 'rgba(255,255,255,0.1)'
                                     }}
+                                    onClick={() => onChatPrompt('Show spending leaks')}
                                 >
                                     Show spending leaks
-                                </span>
+                                </button>
                             </div>
                         </div>
                     </div>

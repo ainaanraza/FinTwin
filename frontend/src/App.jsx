@@ -16,6 +16,7 @@ function App() {
     const [currentPage, setCurrentPage] = useState('landing');
     const [signupEmail, setSignupEmail] = useState('');
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [pendingChatPrompt, setPendingChatPrompt] = useState('');
 
     const handleGetStarted = (email) => {
         setSignupEmail(email);
@@ -30,6 +31,11 @@ function App() {
     const handleBackToLanding = () => {
         setCurrentPage('landing');
         setSignupEmail('');
+    };
+
+    const handleChatPrompt = (promptText) => {
+        setPendingChatPrompt(promptText);
+        setActiveTab('chat');
     };
 
     if (currentPage === 'landing') {
@@ -65,8 +71,13 @@ function App() {
                     transition: 'filter 0.3s'
                 }}
             >
-                {activeTab === 'analytics' && <AnalyticsDashboard />}
-                {activeTab === 'chat' && <ChatInterface />}
+                {activeTab === 'analytics' && <AnalyticsDashboard onChatPrompt={handleChatPrompt} />}
+                {activeTab === 'chat' && (
+                    <ChatInterface
+                        initialPrompt={pendingChatPrompt}
+                        onPromptConsumed={() => setPendingChatPrompt('')}
+                    />
+                )}
                 {activeTab === 'notifications' && <Notifications />}
                 {activeTab === 'profile' && <UserProfile />}
             </main>
