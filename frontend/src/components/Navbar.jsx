@@ -1,6 +1,5 @@
 import React from 'react';
-import { Home, MessageSquare, PieChart, Zap, Target } from 'lucide-react';
-import { Home, MessageSquare, PieChart, Zap, Bell } from 'lucide-react';
+import { Home, MessageSquare, PieChart, Zap, Target, Bell } from 'lucide-react';
 
 const Navbar = ({ activeTab, setActiveTab, onSmartSpend }) => {
     const navItems = [

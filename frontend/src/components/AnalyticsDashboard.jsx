@@ -4,8 +4,7 @@ import { ChevronRight, DollarSign, TrendingUp, ShieldCheck, Activity } from 'luc
 
 import leafPattern from '../assets/leaf_pattern.png';
 
-const AnalyticsDashboard = ({ userGoals = [] }) => {
-const AnalyticsDashboard = ({ onChatPrompt = () => {} }) => {
+const AnalyticsDashboard = ({ userGoals = [], onChatPrompt = () => {} }) => {
      const [data, setData] = useState([
         { name: 'Jun', amount: 2400 }, { name: 'Jul', amount: 1398 },
         { name: 'Aug', amount: 9800 }, { name: 'Sep', amount: 3908 },
