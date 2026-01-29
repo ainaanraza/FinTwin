@@ -48,7 +48,7 @@ class BedrockService:
                         {
                             "role": "user",
                             "content": [
-                                {"text": prompt + "\n\nProvide the response in plain text without any markdown formatting, asterisks, or hashes."}
+                                {"text": prompt}
                             ]
                         }
                     ]
@@ -63,8 +63,6 @@ class BedrockService:
                 
                 response_body = json.loads(response.get("body").read())
                 output_text = response_body.get("output", {}).get("message", {}).get("content", [])[0].get("text")
-                # Strip markdown
-                output_text = output_text.replace("*", "").replace("#", "").replace("`", "")
                 return output_text
                 
             else:
