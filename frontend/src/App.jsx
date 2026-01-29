@@ -4,6 +4,7 @@ import AnalyticsDashboard from './components/AnalyticsDashboard';
 import ChatInterface from './components/ChatInterface';
 import UserProfile from './components/UserProfile';
 import SmartSpendView from './components/SmartSpendView';
+import Notifications from './components/Notifications';
 import FloatingParticles from './components/FloatingParticles';
 import LandingPage from './components/LandingPage';
 import SignUp from './components/SignUp';
@@ -66,6 +67,7 @@ function App() {
             >
                 {activeTab === 'analytics' && <AnalyticsDashboard />}
                 {activeTab === 'chat' && <ChatInterface />}
+                {activeTab === 'notifications' && <Notifications />}
                 {activeTab === 'profile' && <UserProfile />}
             </main>
 
