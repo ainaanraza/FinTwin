@@ -90,16 +90,19 @@ function App() {
                     transition: 'filter 0.3s'
                 }}
             >
-                {activeTab === 'analytics' && <AnalyticsDashboard userGoals={userGoals} />}
-                {activeTab === 'chat' && <ChatInterface />}
-                {activeTab === 'goals' && <Goal userGoals={userGoals} onGoalUpdate={setUserGoals} />}
-                {activeTab === 'analytics' && <AnalyticsDashboard onChatPrompt={handleChatPrompt} />}
+                {activeTab === 'analytics' && (
+                    <AnalyticsDashboard
+                        userGoals={userGoals}
+                        onChatPrompt={handleChatPrompt}
+                    />
+                )}
                 {activeTab === 'chat' && (
                     <ChatInterface
                         initialPrompt={pendingChatPrompt}
                         onPromptConsumed={() => setPendingChatPrompt('')}
                     />
                 )}
+                {activeTab === 'goals' && <Goal userGoals={userGoals} onGoalUpdate={setUserGoals} />}
                 {activeTab === 'notifications' && <Notifications />}
                 {activeTab === 'profile' && <UserProfile />}
             </main>
