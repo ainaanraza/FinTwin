@@ -15,6 +15,7 @@ const AnalyticsDashboard = ({ onChatPrompt = () => {} }) => {
     const [selectedMonth, setSelectedMonth] = useState('November');
     const [showAllDeposits, setShowAllDeposits] = useState(false);
     const [monthPulse, setMonthPulse] = useState(false);
+    const [exporting, setExporting] = useState(false);
 
     const monthOptions = ['November', 'October', 'September', 'August', 'July', 'June'];
 
@@ -439,10 +440,35 @@ const AnalyticsDashboard = ({ onChatPrompt = () => {} }) => {
                                     color: 'white',
                                     borderColor: 'transparent',
                                     width: '100%',
-                                    boxShadow: 'var(--shadow-accent)'
+                                    boxShadow: 'var(--shadow-accent)',
+                                    opacity: exporting ? 0.8 : 1
                                 }}
+                                onClick={async () => {
+                                    try {
+                                        setExporting(true);
+                                        const res = await fetch('http://127.0.0.1:8000/api/export-summary');
+                                        if (!res.ok) {
+                                            const text = await res.text();
+                                            throw new Error(`Export failed (${res.status}): ${text}`);
+                                        }
+                                        const blob = await res.blob();
+                                        const url = window.URL.createObjectURL(blob);
+                                        const link = document.createElement('a');
+                                        link.href = url;
+                                        link.download = 'finTwin-summary.pdf';
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        link.remove();
+                                        window.URL.revokeObjectURL(url);
+                                    } catch (e) {
+                                        console.error('Export failed', e);
+                                    } finally {
+                                        setExporting(false);
+                                    }
+                                }}
+                                disabled={exporting}
                             >
-                                Export summary
+                                {exporting ? 'Preparing…' : 'Export summary'}
                             </button>
                         </div>
                     </div>
