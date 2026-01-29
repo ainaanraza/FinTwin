@@ -3,6 +3,8 @@ import { Mail, User, Eye, EyeOff, ArrowLeft, CheckCircle } from 'lucide-react';
 import FloatingParticles from './FloatingParticles';
 
 const SignUp = ({ initialEmail = '', onSignupComplete, onBack }) => {
+        console.log("initialEmail:", initialEmail, typeof initialEmail);
+        
     const [step, setStep] = useState(initialEmail ? 2 : 1);
     const [email, setEmail] = useState(initialEmail);
     const [password, setPassword] = useState('');

@@ -4,7 +4,7 @@ import { ChevronRight, DollarSign, TrendingUp, ShieldCheck, Activity } from 'luc
 
 import leafPattern from '../assets/leaf_pattern.png';
 
-const AnalyticsDashboard = () => {
+const AnalyticsDashboard = ({ userGoals = [] }) => {
     const [data, setData] = useState([
         { name: 'Jun', amount: 2400 }, { name: 'Jul', amount: 1398 },
         { name: 'Aug', amount: 9800 }, { name: 'Sep', amount: 3908 },
@@ -353,36 +353,39 @@ const AnalyticsDashboard = () => {
                     <div className="card-float" style={{ borderTop: '4px solid var(--accent-black)' }}>
                         <div className="section-heading">
                             <h3>Goals Progress</h3>
-                            <span className="pill-soft">On track</span>
+                            <span className="pill-soft">
+                                {userGoals.filter(g => g.value >= g.target).length}/{userGoals.length} Complete
+                            </span>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            {[
-                                { label: 'Emergency Fund', value: 78 },
-                                { label: 'Europe Trip', value: 54 },
-                                { label: 'Car Downpayment', value: 32 }
-                            ].map(goal => (
-                                <div key={goal.label}>
-                                    <div style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        marginBottom: '0.5rem',
-                                        gap: '0.5rem',
-                                        flexWrap: 'wrap'
-                                    }}>
-                                        <span style={{
-                                            color: '#0f172a',
-                                            fontWeight: 600,
-                                            fontSize: 'clamp(0.85rem, 2vw, 1rem)'
+                            {userGoals.map(goal => {
+                                const percentage = Math.round((goal.value / goal.target) * 100);
+                                return (
+                                    <div key={goal.id}>
+                                        <div style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            marginBottom: '0.5rem',
+                                            gap: '0.5rem',
+                                            flexWrap: 'wrap'
                                         }}>
-                                            {goal.label}
-                                        </span>
-                                        <span className="pill-soft">{goal.value}%</span>
+                                            <span style={{
+                                                color: '#0f172a',
+                                                fontWeight: 600,
+                                                fontSize: 'clamp(0.85rem, 2vw, 1rem)'
+                                            }}>
+                                                {goal.label}
+                                            </span>
+                                            <span className="pill-soft" style={{ backgroundColor: goal.color + '20', color: goal.color }}>
+                                                {percentage}%
+                                            </span>
+                                        </div>
+                                        <div className="progress-bar">
+                                            <div className="progress-fill" style={{ width: `${percentage}%`, background: goal.color }} />
+                                        </div>
                                     </div>
-                                    <div className="progress-bar">
-                                        <div className="progress-fill" style={{ width: `${goal.value}%` }} />
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
 

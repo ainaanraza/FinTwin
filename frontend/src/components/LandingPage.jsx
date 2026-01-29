@@ -103,16 +103,11 @@ const LandingPage = ({ onGetStarted }) => {
                                 className="btn-primary"
                                 onClick={onGetStarted}
                             >
-                                Start Free Trial
+                                Get Started
                                 <ArrowRight size={18} />
                             </button>
-                            <button className="btn-secondary">
-                                Watch Demo
-                                <ChevronDown size={18} />
-                            </button>
+                            
                         </div>
-
-                        {/* Hero Visual */}
                     </div>
                     <div className="hero-visual">
                         <div className="dashboard-preview">
