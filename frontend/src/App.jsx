@@ -5,11 +5,47 @@ import ChatInterface from './components/ChatInterface';
 import UserProfile from './components/UserProfile';
 import SmartSpendView from './components/SmartSpendView';
 import FloatingParticles from './components/FloatingParticles';
+import LandingPage from './components/LandingPage';
+import SignUp from './components/SignUp';
 import './index.css';
 
 function App() {
     const [activeTab, setActiveTab] = useState('analytics');
     const [showSmartSpend, setShowSmartSpend] = useState(false);
+    const [currentPage, setCurrentPage] = useState('landing');
+    const [signupEmail, setSignupEmail] = useState('');
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    const handleGetStarted = (email) => {
+        setSignupEmail(email);
+        setCurrentPage('signup');
+    };
+
+    const handleSignupComplete = () => {
+        setIsLoggedIn(true);
+        setCurrentPage('dashboard');
+    };
+
+    const handleBackToLanding = () => {
+        setCurrentPage('landing');
+        setSignupEmail('');
+    };
+
+    if (currentPage === 'landing') {
+        return (
+            <LandingPage onGetStarted={handleGetStarted} />
+        );
+    }
+
+    if (currentPage === 'signup') {
+        return (
+            <SignUp 
+                initialEmail={signupEmail} 
+                onSignupComplete={handleSignupComplete}
+                onBack={handleBackToLanding}
+            />
+        );
+    }
 
     return (
         <div className="app-container">
@@ -18,6 +54,7 @@ function App() {
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
                 onSmartSpend={() => setShowSmartSpend(true)}
+                onLogout={() => setIsLoggedIn(false)}
             />
 
             <main
