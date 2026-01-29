@@ -17,6 +17,12 @@ class BedrockService:
                 aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
                 aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
             )
+            
+            # Check if credentials are loaded
+            if not os.getenv('AWS_ACCESS_KEY_ID') or not os.getenv('AWS_SECRET_ACCESS_KEY'):
+                logger.error("AWS Credentials not found in environment variables.")
+                raise ValueError("AWS Credentials not found. Please ensure you have a .env file locally with AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.")
+                
         return cls._client
 
     @staticmethod
