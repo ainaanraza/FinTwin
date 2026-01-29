@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown';
 
 const STORAGE_KEY = 'twin-chat-history';
 
-const ChatInterface = ({ initialPrompt = '', onPromptConsumed = () => {} }) => {
+const ChatInterface = ({ initialPrompt = '', onPromptConsumed = () => { } }) => {
     const [messages, setMessages] = useState([
         { id: 1, type: 'bot', text: 'Hello! I am your Financial Digital Twin. Ask about spending, run simulations, or get budgeting advice.' }
     ]);
@@ -57,6 +57,10 @@ const ChatInterface = ({ initialPrompt = '', onPromptConsumed = () => {} }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: userMsg.text })
             });
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
 
             const data = await response.json();
             const botMsg = { id: Date.now() + 1, type: 'bot', text: data.response, context: data.context };

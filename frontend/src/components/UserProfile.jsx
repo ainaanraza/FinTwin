@@ -1,14 +1,51 @@
 import React from 'react';
 import { Shield, Target } from 'lucide-react';
 
+import { auth, db } from '../firebase';
+import { doc, getDoc } from 'firebase/firestore';
+
 const UserProfile = () => {
     const [profile, setProfile] = React.useState(null);
+    const [loading, setLoading] = React.useState(true);
 
     React.useEffect(() => {
-        fetch('/api/profile')
-            .then(res => res.json())
-            .then(data => setProfile(data))
-            .catch(err => console.error("Profile Fetch Error", err));
+        const unsubscribe = auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    const docRef = doc(db, 'users', user.uid);
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        const financial = data.financialProfile || {};
+
+                        setProfile({
+                            name: user.displayName || "User",
+                            income: financial.monthlyIncome || 0,
+                            savings: financial.savings || 0,
+                            debt: financial.existingLoans || 0,
+                            goals: ["Emergency Fund", "Retirement"]
+                        });
+                    } else {
+                        setProfile({
+                            name: user.displayName || "User",
+                            income: 0,
+                            savings: 0,
+                            debt: 0,
+                            goals: []
+                        });
+                    }
+                } catch (err) {
+                    console.error("Profile Fetch Error", err);
+                } finally {
+                    setLoading(false);
+                }
+            } else {
+                setLoading(false);
+            }
+        });
+
+        return () => unsubscribe();
     }, []);
 
     if (!profile) {

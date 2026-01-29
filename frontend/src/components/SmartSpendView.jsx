@@ -1,16 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Check, AlertTriangle, Plus, Trash2, Bell, Clock } from 'lucide-react';
+import { auth, db } from '../firebase';
+import { collection, addDoc, query, where, onSnapshot, deleteDoc, updateDoc, doc, getDocs } from 'firebase/firestore';
 
 const SmartSpendView = ({ onClose }) => {
     const [view, setView] = useState('budget'); // 'budget' or 'scan'
     const [scanResult, setScanResult] = useState(null);
     const [analyzing, setAnalyzing] = useState(false);
-    const [budgets, setBudgets] = useState([
-        { id: 1, category: 'Shopping', limit: 500, spent: 120, period: 'Monthly', active: true, transactions: [], startTime: null, endTime: null },
-        { id: 2, category: 'Dining', limit: 300, spent: 180, period: 'Monthly', active: true, transactions: [], startTime: null, endTime: null },
-        { id: 3, category: 'Entertainment', limit: 200, spent: 95, period: 'Monthly', active: false, transactions: [], startTime: null, endTime: null }
-    ]);
-    
+    const [budgets, setBudgets] = useState([]);
+    const seedCheckDone = useRef(false);
+
+    useEffect(() => {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const q = query(collection(db, 'budgets'), where('userId', '==', user.uid));
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            if (snapshot.empty && !seedCheckDone.current) {
+                seedCheckDone.current = true;
+                const defaultBudgets = [
+                    { category: 'Shopping', limit: 500, spent: 120, period: 'Monthly', active: true, transactions: [], startTime: null, endTime: null, userId: user.uid },
+                    { category: 'Dining', limit: 300, spent: 180, period: 'Monthly', active: true, transactions: [], startTime: null, endTime: null, userId: user.uid },
+                    { category: 'Entertainment', limit: 200, spent: 95, period: 'Monthly', active: false, transactions: [], startTime: null, endTime: null, userId: user.uid }
+                ];
+                defaultBudgets.forEach(b => addDoc(collection(db, 'budgets'), b));
+            } else {
+                const newBudgets = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                // Sort by category or created time if needed, for consistency
+                setBudgets(newBudgets);
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
+
     const [showForm, setShowForm] = useState(false);
     const [newBudget, setNewBudget] = useState({ category: '', limit: '', duration: '' });
     const [notification, setNotification] = useState(null);
@@ -26,8 +53,11 @@ const SmartSpendView = ({ onClose }) => {
         { label: 'Custom', value: 'Custom', duration: null }
     ];
 
-    const handleAddBudget = () => {
+    const handleAddBudget = async () => {
         if (newBudget.category && newBudget.limit && newBudget.duration) {
+            const user = auth.currentUser;
+            if (!user) return;
+
             const now = new Date();
             const durationStr = newBudget.duration.toLowerCase().trim();
             let totalMinutes = 0;
@@ -48,88 +78,96 @@ const SmartSpendView = ({ onClose }) => {
             const endTime = new Date(now.getTime() + durationMs);
 
             const budget = {
-                id: Math.max(...budgets.map(b => b.id), 0) + 1,
+                userId: user.uid,
                 category: newBudget.category,
                 limit: parseInt(newBudget.limit),
                 spent: 0,
                 period: newBudget.duration,
                 active: false,
                 transactions: [],
-                startTime: null,
+                startTime: null, // strings or timestamps might be better for Firestore, trying direct objects but timestamps are transformed
                 endTime: null
             };
 
-            setBudgets([...budgets, budget]);
+            // Firestore handles dates as Timestamps, keeping it simple
+            // We might need to serialize dates if we want simple strings
+
+            await addDoc(collection(db, 'budgets'), budget);
+
             setNewBudget({ category: '', limit: '', duration: '' });
             setShowForm(false);
         }
     };
 
-    const handleToggleBudget = (id) => {
+    const handleToggleBudget = async (id) => {
+        const budgetToUpdate = budgets.find(b => b.id === id);
+        if (!budgetToUpdate) return;
+
         const now = new Date();
-        setBudgets(budgets.map(b => {
-            if (b.id === id) {
-                const isActivating = !b.active;
-                const durationStr = b.period.toLowerCase().trim();
-                let totalMinutes = 0;
+        const isActivating = !budgetToUpdate.active;
+        let updateData = {};
 
-                const hourMatch = durationStr.match(/(\d+)\s*h/);
-                const minuteMatch = durationStr.match(/(\d+)\s*m/);
+        if (isActivating) {
+            const durationStr = budgetToUpdate.period.toLowerCase().trim();
+            let totalMinutes = 0;
 
-                if (hourMatch) totalMinutes += parseInt(hourMatch[1]) * 60;
-                if (minuteMatch) totalMinutes += parseInt(minuteMatch[1]);
+            const hourMatch = durationStr.match(/(\d+)\s*h/);
+            const minuteMatch = durationStr.match(/(\d+)\s*m/);
 
-                const durationMs = totalMinutes * 60 * 1000;
-                const endTime = new Date(now.getTime() + durationMs);
-                
-                return {
-                    ...b,
-                    active: isActivating,
-                    startTime: isActivating ? now : null,
-                    endTime: isActivating ? endTime : null,
-                    spent: isActivating ? 0 : b.spent,
-                    transactions: isActivating ? [] : b.transactions
-                };
-            }
-            return b;
-        }));
+            if (hourMatch) totalMinutes += parseInt(hourMatch[1]) * 60;
+            if (minuteMatch) totalMinutes += parseInt(minuteMatch[1]);
+
+            const durationMs = totalMinutes * 60 * 1000;
+            const endTime = new Date(now.getTime() + durationMs);
+
+            updateData = {
+                active: true,
+                startTime: now.toISOString(), // Use ISO string for serialization safety
+                endTime: endTime.toISOString(),
+                spent: 0,
+                transactions: []
+            };
+        } else {
+            updateData = {
+                active: false
+                // Keep history? For now just deactivating
+            };
+        }
+
+        await updateDoc(doc(db, 'budgets', id), updateData);
     };
 
-    const handleDeleteBudget = (id) => {
-        setBudgets(budgets.filter(b => b.id !== id));
+    const handleDeleteBudget = async (id) => {
+        await deleteDoc(doc(db, 'budgets', id));
     };
 
-    const handleAddTransaction = (budgetId, amount) => {
-        const updatedBudgets = budgets.map(b => {
-            if (b.id === budgetId && b.active) {
-                const newSpent = b.spent + amount;
-                const isOverBudget = newSpent > b.limit;
-                
-                if (isOverBudget) {
-                    setNotification({
-                        type: 'alert',
-                        title: 'Budget Limit Exceeded!',
-                        message: `You've exceeded your ${b.category} budget by $${(newSpent - b.limit).toFixed(2)}`,
-                        category: b.category
-                    });
-                } else if (newSpent > b.limit * 0.8) {
-                    setNotification({
-                        type: 'warning',
-                        title: 'Budget Warning',
-                        message: `You're at ${Math.round((newSpent / b.limit) * 100)}% of your ${b.category} budget`,
-                        category: b.category
-                    });
-                }
+    const handleAddTransaction = async (budgetId, amount) => {
+        const budget = budgets.find(b => b.id === budgetId);
+        if (budget && budget.active) {
+            const newSpent = budget.spent + amount;
+            const isOverBudget = newSpent > budget.limit;
 
-                return {
-                    ...b,
-                    spent: newSpent,
-                    transactions: [...b.transactions, { amount, date: new Date().toLocaleDateString() }]
-                };
+            if (isOverBudget) {
+                setNotification({
+                    type: 'alert',
+                    title: 'Budget Limit Exceeded!',
+                    message: `You've exceeded your ${budget.category} budget by $${(newSpent - budget.limit).toFixed(2)}`,
+                    category: budget.category
+                });
+            } else if (newSpent > budget.limit * 0.8) {
+                setNotification({
+                    type: 'warning',
+                    title: 'Budget Warning',
+                    message: `You're at ${Math.round((newSpent / budget.limit) * 100)}% of your ${budget.category} budget`,
+                    category: budget.category
+                });
             }
-            return b;
-        });
-        setBudgets(updatedBudgets);
+
+            await updateDoc(doc(db, 'budgets', budgetId), {
+                spent: newSpent,
+                transactions: [...budget.transactions, { amount, date: new Date().toLocaleDateString() }]
+            });
+        }
     };
 
     const performMockScan = () => {
@@ -161,16 +199,29 @@ const SmartSpendView = ({ onClose }) => {
         return Math.round((spent / limit) * 100);
     };
 
-    const getTimeRemaining = (endTime) => {
-        if (!endTime) return null;
+    const getTimeRemaining = (endTimeStr) => {
+        if (!endTimeStr) return null;
+
+        let endTime;
+        if (endTimeStr && typeof endTimeStr === 'string' && endTimeStr.includes('T')) {
+            endTime = new Date(endTimeStr);
+        } else if (endTimeStr instanceof Date) {
+            endTime = endTimeStr;
+        } else {
+            // Handle Firestore Timestamp if not converted (though usually date() works if typed)
+            // But we stored it as ISO string or direct Date.
+            // If stored as ISO string, new Date(str) works.
+            endTime = new Date(endTimeStr);
+        }
+
         const now = new Date();
         const diff = endTime - now;
-        
+
         if (diff <= 0) return 'Expired';
-        
+
         const hours = Math.floor(diff / (60 * 60 * 1000));
         const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
-        
+
         if (hours > 0) {
             return `${hours}h ${minutes}m left`;
         } else {
@@ -221,45 +272,45 @@ const SmartSpendView = ({ onClose }) => {
             </button>
 
             {!scanResult ? (
-                <div style={{ 
-                    textAlign: 'center', 
+                <div style={{
+                    textAlign: 'center',
                     color: 'white',
                     maxWidth: '500px',
                     width: '100%'
                 }}>
-                    <h2 style={{ 
-                        fontSize: 'clamp(1.5rem, 5vw, 2rem)', 
-                        marginBottom: '1rem', 
-                        fontFamily: 'var(--font-family)', 
+                    <h2 style={{
+                        fontSize: 'clamp(1.5rem, 5vw, 2rem)',
+                        marginBottom: '1rem',
+                        fontFamily: 'var(--font-family)',
                         fontWeight: 300,
                         lineHeight: 1.2
                     }}>
                         Smart<span style={{ fontWeight: 700, color: 'var(--accent-gold)' }}>Spend</span>
                     </h2>
-                    <p style={{ 
-                        marginBottom: 'clamp(2rem, 6vw, 4rem)', 
-                        opacity: 0.8, 
+                    <p style={{
+                        marginBottom: 'clamp(2rem, 6vw, 4rem)',
+                        opacity: 0.8,
                         letterSpacing: '0.05em',
                         fontSize: 'clamp(0.85rem, 2vw, 1rem)'
                     }}>
                         Scan product to analyze budget fit.
                     </p>
 
-                    <div className="prompt-row" style={{ 
-                        justifyContent: 'center', 
-                        marginBottom: '1.5rem' 
+                    <div className="prompt-row" style={{
+                        justifyContent: 'center',
+                        marginBottom: '1.5rem'
                     }}>
-                        <span className="context-chip" style={{ 
-                            background: 'rgba(255,255,255,0.1)', 
-                            color: 'white', 
-                            borderColor: 'rgba(255,255,255,0.2)' 
+                        <span className="context-chip" style={{
+                            background: 'rgba(255,255,255,0.1)',
+                            color: 'white',
+                            borderColor: 'rgba(255,255,255,0.2)'
                         }}>
                             Budget Guard
                         </span>
-                        <span className="context-chip" style={{ 
-                            background: 'rgba(255,255,255,0.1)', 
-                            color: 'white', 
-                            borderColor: 'rgba(255,255,255,0.2)' 
+                        <span className="context-chip" style={{
+                            background: 'rgba(255,255,255,0.1)',
+                            color: 'white',
+                            borderColor: 'rgba(255,255,255,0.2)'
                         }}>
                             Real-time Alerts
                         </span>
@@ -269,14 +320,14 @@ const SmartSpendView = ({ onClose }) => {
                         onClick={performMockScan}
                         disabled={analyzing}
                         style={{
-                            width: 'clamp(180px, 40vw, 220px)', 
-                            height: 'clamp(180px, 40vw, 220px)', 
+                            width: 'clamp(180px, 40vw, 220px)',
+                            height: 'clamp(180px, 40vw, 220px)',
                             borderRadius: '50%',
                             background: analyzing ? 'transparent' : 'black',
                             border: '2px solid var(--accent-gold)',
                             color: 'var(--accent-gold)',
-                            fontSize: 'clamp(1rem, 2.5vw, 1.25rem)', 
-                            fontWeight: 600, 
+                            fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
+                            fontWeight: 600,
                             letterSpacing: '0.1em',
                             boxShadow: analyzing ? '0 0 50px rgba(212, 175, 55, 0.4)' : '0 10px 40px rgba(0,0,0,0.5)',
                             transition: 'all 0.4s ease',
@@ -422,11 +473,11 @@ const SmartSpendView = ({ onClose }) => {
                             justifyContent: 'center',
                             flexWrap: 'wrap'
                         }}>
-                            <button 
-                                className="btn-secondary" 
-                                onClick={performMockScan} 
-                                style={{ 
-                                    background: 'white', 
+                            <button
+                                className="btn-secondary"
+                                onClick={performMockScan}
+                                style={{
+                                    background: 'white',
                                     color: '#0f172a',
                                     flex: '1 1 120px'
                                 }}

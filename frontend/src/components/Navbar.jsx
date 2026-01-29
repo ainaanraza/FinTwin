@@ -1,6 +1,5 @@
 import React from 'react';
-import { Home, MessageSquare, PieChart, Zap, Target } from 'lucide-react';
-import { Home, MessageSquare, PieChart, Zap, Bell } from 'lucide-react';
+import { Home, MessageSquare, PieChart, Zap, Target, Bell } from 'lucide-react';
 
 const Navbar = ({ activeTab, setActiveTab, onSmartSpend }) => {
     const navItems = [
@@ -14,16 +13,16 @@ const Navbar = ({ activeTab, setActiveTab, onSmartSpend }) => {
     return (
         <nav className="bottom-nav">
             {/* Desktop Brand */}
-            <h1 
+            <h1
                 style={{
-                    fontSize: '1.75rem', 
-                    fontWeight: 700, 
+                    fontSize: '1.75rem',
+                    fontWeight: 700,
                     color: 'var(--accent-black)',
-                    marginBottom: '2.5rem', 
-                    display: 'none', 
-                    width: '100%', 
+                    marginBottom: '2.5rem',
+                    display: 'none',
+                    width: '100%',
                     textAlign: 'center'
-                }} 
+                }}
                 className="desktop-brand"
             >
                 Fin<span style={{ color: 'var(--accent-gold)' }}>Twin</span>
@@ -41,9 +40,9 @@ const Navbar = ({ activeTab, setActiveTab, onSmartSpend }) => {
                         aria-label={item.label}
                     >
                         <span className="nav-dot" aria-hidden="true" />
-                        <Icon 
-                            size={24} 
-                            strokeWidth={isActive ? 2.5 : 1.5} 
+                        <Icon
+                            size={24}
+                            strokeWidth={isActive ? 2.5 : 1.5}
                         />
                         <span style={{
                             fontSize: '0.7rem',
@@ -57,7 +56,7 @@ const Navbar = ({ activeTab, setActiveTab, onSmartSpend }) => {
                     </button>
                 );
             })}
-            
+
             {/* SmartSpend Button - FAB on Mobile, Regular on Desktop */}
             <button
                 className="nav-item btn-smart-mobile"

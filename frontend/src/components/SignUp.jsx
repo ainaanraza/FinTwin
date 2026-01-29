@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Mail, User, Eye, EyeOff, ArrowLeft, CheckCircle } from 'lucide-react';
+import { auth } from '../firebase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import FloatingParticles from './FloatingParticles';
 
-const SignUp = ({ initialEmail = '', onSignupComplete, onBack }) => {
-        console.log("initialEmail:", initialEmail, typeof initialEmail);
-        
-    const [step, setStep] = useState(initialEmail ? 2 : 1);
+const SignUp = ({ initialEmail = '', initialLoginMode = false, onSignupComplete, onBack }) => {
+    // console.log("initialEmail:", initialEmail, typeof initialEmail);
+
+    const [step, setStep] = useState(initialEmail || initialLoginMode ? 2 : 1);
     const [email, setEmail] = useState(initialEmail);
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -14,21 +16,21 @@ const SignUp = ({ initialEmail = '', onSignupComplete, onBack }) => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error, setError] = useState('');
-    const [isLogin, setIsLogin] = useState(false);
+    const [isLogin, setIsLogin] = useState(initialLoginMode);
 
     const handleEmailSubmit = (e) => {
         e.preventDefault();
         setError('');
-        
+
         if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
             setError('Please enter a valid email address');
             return;
         }
-        
+
         setStep(2);
     };
 
-    const handleSignUp = (e) => {
+    const handleSignUp = async (e) => {
         e.preventDefault();
         setError('');
 
@@ -48,15 +50,22 @@ const SignUp = ({ initialEmail = '', onSignupComplete, onBack }) => {
         }
 
         setIsLoading(true);
-        
-        // Simulate API call
-        setTimeout(() => {
+
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            await updateProfile(userCredential.user, {
+                displayName: fullName
+            });
             setIsLoading(false);
             onSignupComplete();
-        }, 1500);
+        } catch (err) {
+            setIsLoading(false);
+            setError(err.message);
+            console.error(err);
+        }
     };
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
 
@@ -66,12 +75,21 @@ const SignUp = ({ initialEmail = '', onSignupComplete, onBack }) => {
         }
 
         setIsLoading(true);
-        
-        // Simulate API call
-        setTimeout(() => {
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
             setIsLoading(false);
             onSignupComplete();
-        }, 1500);
+        } catch (err) {
+            setIsLoading(false);
+            // Clean up the error message for better UX
+            const errorMessage = err.message
+                .replace('Firebase: ', '')
+                .replace('auth/', '')
+                .replace(/-/g, ' ');
+            setError(errorMessage.charAt(0).toUpperCase() + errorMessage.slice(1));
+            console.error(err);
+        }
     };
 
     return (
@@ -84,13 +102,13 @@ const SignUp = ({ initialEmail = '', onSignupComplete, onBack }) => {
                     <div className="signup-header">
                         <h2>{isLogin ? 'Welcome Back' : 'Join FinTwin'}</h2>
                         <p>
-                            {isLogin 
-                                ? 'Sign in to your account to continue' 
+                            {isLogin
+                                ? 'Sign in to your account to continue'
                                 : 'Start your financial intelligence journey today'}
                         </p>
                     </div>
 
-         
+
 
                     <div className="signup-card">
                         {/* Step 1: Email */}
@@ -114,7 +132,7 @@ const SignUp = ({ initialEmail = '', onSignupComplete, onBack }) => {
                                 </div>
 
                                 <div className="form-actions">
-                                    <button 
+                                    <button
                                         type="button"
                                         className="btn-back"
                                         onClick={onBack}
@@ -122,7 +140,7 @@ const SignUp = ({ initialEmail = '', onSignupComplete, onBack }) => {
                                         <ArrowLeft size={18} style={{ marginRight: '0.5rem' }} />
                                         Back
                                     </button>
-                                    <button 
+                                    <button
                                         type="submit"
                                         className="btn-submit"
                                     >
@@ -224,7 +242,7 @@ const SignUp = ({ initialEmail = '', onSignupComplete, onBack }) => {
                                 )}
 
                                 <div className="form-actions">
-                                    <button 
+                                    <button
                                         type="button"
                                         className="btn-back"
                                         onClick={() => {
@@ -235,7 +253,7 @@ const SignUp = ({ initialEmail = '', onSignupComplete, onBack }) => {
                                         <ArrowLeft size={18} style={{ marginRight: '0.5rem' }} />
                                         Back
                                     </button>
-                                    <button 
+                                    <button
                                         type="submit"
                                         className="btn-submit"
                                         disabled={isLoading}
@@ -259,7 +277,7 @@ const SignUp = ({ initialEmail = '', onSignupComplete, onBack }) => {
                                     {isLogin ? (
                                         <>
                                             Don't have an account?
-                                            <button 
+                                            <button
                                                 type="button"
                                                 onClick={() => {
                                                     setIsLogin(false);
@@ -275,7 +293,7 @@ const SignUp = ({ initialEmail = '', onSignupComplete, onBack }) => {
                                     ) : (
                                         <>
                                             Already have an account?
-                                            <button 
+                                            <button
                                                 type="button"
                                                 onClick={() => {
                                                     setIsLogin(true);

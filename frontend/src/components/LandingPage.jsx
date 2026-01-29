@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ArrowRight, Zap, TrendingUp, Shield, BarChart3, ChevronDown } from 'lucide-react';
 import FloatingParticles from './FloatingParticles';
 
-const LandingPage = ({ onGetStarted }) => {
+const LandingPage = ({ onGetStarted, onLogin }) => {
     const [email, setEmail] = useState('');
 
     const features = [
@@ -71,7 +71,7 @@ const LandingPage = ({ onGetStarted }) => {
                     <nav className="landing-nav">
                         <a href="#features">Features</a>
                         <a href="#about">About</a>
-                        <button 
+                        <button
                             className="nav-cta-btn"
                             onClick={onGetStarted}
                         >
@@ -99,14 +99,14 @@ const LandingPage = ({ onGetStarted }) => {
                         </p>
 
                         <div className="hero-actions">
-                            <button 
+                            <button
                                 className="btn-primary"
                                 onClick={onGetStarted}
                             >
                                 Get Started
                                 <ArrowRight size={18} />
                             </button>
-                            
+
                         </div>
                     </div>
                     <div className="hero-visual">
@@ -197,7 +197,7 @@ const LandingPage = ({ onGetStarted }) => {
                     <div className="cta-content card-float">
                         <h3>Ready to Take Control?</h3>
                         <p>Join thousands of users optimizing their finances with FinTwin</p>
-                        
+
                         <form onSubmit={handleEmailSubmit} className="email-form">
                             <input
                                 type="email"
@@ -206,8 +206,8 @@ const LandingPage = ({ onGetStarted }) => {
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                             />
-                            <button 
-                                type="submit" 
+                            <button
+                                type="submit"
                                 className="btn-primary"
                             >
                                 Get Started
@@ -260,7 +260,7 @@ const LandingPage = ({ onGetStarted }) => {
                             <a href="#contact">Contact</a>
                         </div>
                     </div>
-                    
+
                 </div>
             </footer>
         </div>
