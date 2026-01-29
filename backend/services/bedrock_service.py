@@ -21,7 +21,13 @@ class BedrockService:
             # Check if credentials are loaded
             if not os.getenv('AWS_ACCESS_KEY_ID') or not os.getenv('AWS_SECRET_ACCESS_KEY'):
                 logger.error("AWS Credentials not found in environment variables.")
-                raise ValueError("AWS Credentials not found. Please ensure you have a .env file locally with AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.")
+                # Log available keys (safe)
+                env_keys = [k for k in os.environ.keys() if 'AWS' in k]
+                logger.error(f"Available AWS Env Vars: {env_keys}")
+                raise ValueError("AWS Credentials not found. Please ensure you have added AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY to your Vercel Environment Variables.")
+            else:
+                logger.info(f"AWS Credentials found. Region: {os.getenv('AWS_DEFAULT_REGION', 'us-east-1')}")
+
                 
         return cls._client
 
@@ -30,13 +36,13 @@ class BedrockService:
         """
         Generates a response from AWS Bedrock using Amazon Titan or Nova models.
         """
-        client = BedrockService.get_client()
         model_id = os.getenv('BEDROCK_MODEL_ID', 'amazon.nova-pro-v1:0')
         
         # Construct the payload based on the model family
         # Valid models: amazon.nova-pro-v1:0, amazon.titan-tg1-large, etc.
         
         try:
+            client = BedrockService.get_client()
             if "nova" in model_id:
                 # Amazon Nova format
                 # https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-nova.html
