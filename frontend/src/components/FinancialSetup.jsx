@@ -59,12 +59,13 @@ const FinancialSetup = ({ onSetupComplete }) => {
     };
 
     const formatCurrency = (value) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            minimumFractionDigits: 0
-        }).format(value || 0);
-    };
+    return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 0
+    }).format(value || 0);
+};
+
 
     return (
         <div className="financial-setup-page">
@@ -79,7 +80,11 @@ const FinancialSetup = ({ onSetupComplete }) => {
                     </div>
 
                     <div className="progress-bar-container">
-                        <div className="progress-bar" style={{ width: `${(step / steps.length) * 100}%` }}></div>
+                       <div
+  className="progress-bar"
+  style={{ width: `${(step / steps.length) * 100}%` }}
+></div>
+
                     </div>
 
                     {/* Step Indicators */}
@@ -87,7 +92,7 @@ const FinancialSetup = ({ onSetupComplete }) => {
                         {steps.map((s) => (
                             <div key={s.number} className="step-indicator-item">
                                 <div 
-                                    className={`step-indicator-circle ${step >= s.number ? 'active' : ''}`}
+                                    className={`step-indicator-circle ₹{step >= s.number ? 'active' : ''}`}
                                     style={step >= s.number ? { background: s.color } : {}}
                                 >
                                     {step > s.number ? (
@@ -122,9 +127,9 @@ const FinancialSetup = ({ onSetupComplete }) => {
                             </p>
 
                             <div className="input-group">
-                                <label>Amount (USD)</label>
+                                <label>Amount (Rupees)</label>
                                 <div className="currency-input-wrapper">
-                                    <span className="currency-symbol">$</span>
+                                    <span className="currency-symbol">₹</span>
                                     <input
                                         type="number"
                                         placeholder="0"
@@ -147,37 +152,37 @@ const FinancialSetup = ({ onSetupComplete }) => {
                                 <div className="suggestion-buttons">
                                     {step === 1 && (
                                         <>
-                                            <button onClick={() => setFormData({...formData, monthlyIncome: '3000'})}>$3,000</button>
-                                            <button onClick={() => setFormData({...formData, monthlyIncome: '5000'})}>$5,000</button>
-                                            <button onClick={() => setFormData({...formData, monthlyIncome: '8000'})}>$8,000</button>
+                                            <button onClick={() => setFormData({...formData, monthlyIncome: '3000'})}>₹3,000</button>
+                                            <button onClick={() => setFormData({...formData, monthlyIncome: '5000'})}>₹5,000</button>
+                                            <button onClick={() => setFormData({...formData, monthlyIncome: '8000'})}>₹8,000</button>
                                         </>
                                     )}
                                     {step === 2 && (
                                         <>
-                                            <button onClick={() => setFormData({...formData, monthlyExpenses: '1500'})}>$1,500</button>
-                                            <button onClick={() => setFormData({...formData, monthlyExpenses: '2500'})}>$2,500</button>
-                                            <button onClick={() => setFormData({...formData, monthlyExpenses: '4000'})}>$4,000</button>
+                                            <button onClick={() => setFormData({...formData, monthlyExpenses: '1500'})}>₹1,500</button>
+                                            <button onClick={() => setFormData({...formData, monthlyExpenses: '2500'})}>₹2,500</button>
+                                            <button onClick={() => setFormData({...formData, monthlyExpenses: '4000'})}>₹4,000</button>
                                         </>
                                     )}
                                     {step === 3 && (
                                         <>
-                                            <button onClick={() => setFormData({...formData, existingLoans: '10000'})}>$10,000</button>
-                                            <button onClick={() => setFormData({...formData, existingLoans: '50000'})}>$50,000</button>
-                                            <button onClick={() => setFormData({...formData, existingLoans: '100000'})}>$100,000</button>
+                                            <button onClick={() => setFormData({...formData, existingLoans: '10000'})}>₹10,000</button>
+                                            <button onClick={() => setFormData({...formData, existingLoans: '50000'})}>₹50,000</button>
+                                            <button onClick={() => setFormData({...formData, existingLoans: '100000'})}>₹100,000</button>
                                         </>
                                     )}
                                     {step === 4 && (
                                         <>
-                                            <button onClick={() => setFormData({...formData, savings: '5000'})}>$5,000</button>
-                                            <button onClick={() => setFormData({...formData, savings: '20000'})}>$20,000</button>
-                                            <button onClick={() => setFormData({...formData, savings: '50000'})}>$50,000</button>
+                                            <button onClick={() => setFormData({...formData, savings: '5000'})}>₹5,000</button>
+                                            <button onClick={() => setFormData({...formData, savings: '20000'})}>₹20,000</button>
+                                            <button onClick={() => setFormData({...formData, savings: '50000'})}>₹50,000</button>
                                         </>
                                     )}
                                     {step === 5 && (
                                         <>
-                                            <button onClick={() => setFormData({...formData, currentInvestments: '5000'})}>$5,000</button>
-                                            <button onClick={() => setFormData({...formData, currentInvestments: '25000'})}>$25,000</button>
-                                            <button onClick={() => setFormData({...formData, currentInvestments: '100000'})}>$100,000</button>
+                                            <button onClick={() => setFormData({...formData, currentInvestments: '5000'})}>₹5,000</button>
+                                            <button onClick={() => setFormData({...formData, currentInvestments: '25000'})}>₹25,000</button>
+                                            <button onClick={() => setFormData({...formData, currentInvestments: '100000'})}>₹100,000</button>
                                         </>
                                     )}
                                 </div>
@@ -196,7 +201,7 @@ const FinancialSetup = ({ onSetupComplete }) => {
                             </button>
 
                             <button 
-                                className={`btn-primary ${!formData[currentStepData.field].trim() ? 'disabled' : ''}`}
+                                className={`btn-primary ₹{!formData[currentStepData.field].trim() ? 'disabled' : ''}`}
                                 onClick={handleNext}
                                 disabled={!formData[currentStepData.field].trim() || isLoading}
                             >

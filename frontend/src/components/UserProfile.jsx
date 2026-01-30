@@ -150,7 +150,7 @@ const UserProfile = () => {
                                 fontSize: 'clamp(1.1rem, 2.5vw, 1.2rem)',
                                 whiteSpace: 'nowrap'
                             }}>
-                                ${profile.income}/mo
+                                ₹{profile.income}/mo
                             </span>
                         </div>
                         <div style={{
@@ -173,7 +173,7 @@ const UserProfile = () => {
                                 color: 'var(--accent-gold)',
                                 whiteSpace: 'nowrap'
                             }}>
-                                ${profile.savings}
+                                ₹{profile.savings}
                             </span>
                         </div>
                     </div>
@@ -350,7 +350,7 @@ const UserProfile = () => {
                                 fontWeight: 700,
                                 color: 'white'
                             }}>
-                                ${profile.income}
+                               ₹{profile.income}
                             </div>
                         </div>
                     </div>

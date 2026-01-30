@@ -22,40 +22,40 @@ const AnalyticsDashboard = ({ userGoals = [], onChatPrompt = () => { } }) => {
 
     const kpisByMonth = {
         November: [
-            { title: 'Cash Flow', value: '+$2,908', trend: '+6.4% MoM', Icon: DollarSign, positive: true },
+            { title: 'Cash Flow', value: '+2,908', trend: '+6.4% MoM', Icon: DollarSign, positive: true },
             { title: 'Savings Rate', value: '31%', trend: '+2.1 pts', Icon: ShieldCheck, positive: true },
-            { title: 'Discretionary', value: '$1,120', trend: '-8.2% MoM', Icon: Activity, positive: false },
-            { title: 'Investments', value: '$48.2k', trend: '+4.8% QoQ', Icon: TrendingUp, positive: true }
+            { title: 'Discretionary', value: '1,120', trend: '-8.2% MoM', Icon: Activity, positive: false },
+            { title: 'Investments', value: '48.2k', trend: '+4.8% QoQ', Icon: TrendingUp, positive: true }
         ],
         October: [
-            { title: 'Cash Flow', value: '+$2,420', trend: '+3.1% MoM', Icon: DollarSign, positive: true },
+            { title: 'Cash Flow', value: '+2,420', trend: '+3.1% MoM', Icon: DollarSign, positive: true },
             { title: 'Savings Rate', value: '28%', trend: '-1.4 pts', Icon: ShieldCheck, positive: false },
-            { title: 'Discretionary', value: '$1,340', trend: '+5.6% MoM', Icon: Activity, positive: false },
-            { title: 'Investments', value: '$47.6k', trend: '+3.2% QoQ', Icon: TrendingUp, positive: true }
+            { title: 'Discretionary', value: '1,340', trend: '+5.6% MoM', Icon: Activity, positive: false },
+            { title: 'Investments', value: '47.6k', trend: '+3.2% QoQ', Icon: TrendingUp, positive: true }
         ],
         September: [
-            { title: 'Cash Flow', value: '+$2,115', trend: '+1.9% MoM', Icon: DollarSign, positive: true },
+            { title: 'Cash Flow', value: '+2,115', trend: '+1.9% MoM', Icon: DollarSign, positive: true },
             { title: 'Savings Rate', value: '26%', trend: '-0.7 pts', Icon: ShieldCheck, positive: false },
-            { title: 'Discretionary', value: '$1,410', trend: '+2.8% MoM', Icon: Activity, positive: false },
-            { title: 'Investments', value: '$46.9k', trend: '+2.6% QoQ', Icon: TrendingUp, positive: true }
+            { title: 'Discretionary', value: '1,410', trend: '+2.8% MoM', Icon: Activity, positive: false },
+            { title: 'Investments', value: '46.9k', trend: '+2.6% QoQ', Icon: TrendingUp, positive: true }
         ],
         August: [
-            { title: 'Cash Flow', value: '+$2,780', trend: '+4.5% MoM', Icon: DollarSign, positive: true },
+            { title: 'Cash Flow', value: '+2,780', trend: '+4.5% MoM', Icon: DollarSign, positive: true },
             { title: 'Savings Rate', value: '29%', trend: '+1.2 pts', Icon: ShieldCheck, positive: true },
-            { title: 'Discretionary', value: '$1,210', trend: '-3.8% MoM', Icon: Activity, positive: true },
-            { title: 'Investments', value: '$46.1k', trend: '+2.1% QoQ', Icon: TrendingUp, positive: true }
+            { title: 'Discretionary', value: '1,210', trend: '-3.8% MoM', Icon: Activity, positive: true },
+            { title: 'Investments', value: '46.1k', trend: '+2.1% QoQ', Icon: TrendingUp, positive: true }
         ],
         July: [
-            { title: 'Cash Flow', value: '+$1,980', trend: '-2.2% MoM', Icon: DollarSign, positive: false },
+            { title: 'Cash Flow', value: '+1,980', trend: '-2.2% MoM', Icon: DollarSign, positive: false },
             { title: 'Savings Rate', value: '25%', trend: '-2.3 pts', Icon: ShieldCheck, positive: false },
-            { title: 'Discretionary', value: '$1,520', trend: '+6.1% MoM', Icon: Activity, positive: false },
-            { title: 'Investments', value: '$45.4k', trend: '+1.4% QoQ', Icon: TrendingUp, positive: true }
+            { title: 'Discretionary', value: '1,520', trend: '+6.1% MoM', Icon: Activity, positive: false },
+            { title: 'Investments', value: '45.4k', trend: '+1.4% QoQ', Icon: TrendingUp, positive: true }
         ],
         June: [
-            { title: 'Cash Flow', value: '+$2,350', trend: '+2.6% MoM', Icon: DollarSign, positive: true },
+            { title: 'Cash Flow', value: '+2,350', trend: '+2.6% MoM', Icon: DollarSign, positive: true },
             { title: 'Savings Rate', value: '27%', trend: '+0.8 pts', Icon: ShieldCheck, positive: true },
-            { title: 'Discretionary', value: '$1,260', trend: '-1.9% MoM', Icon: Activity, positive: true },
-            { title: 'Investments', value: '$44.8k', trend: '+1.0% QoQ', Icon: TrendingUp, positive: true }
+            { title: 'Discretionary', value: '1,260', trend: '-1.9% MoM', Icon: Activity, positive: true },
+            { title: 'Investments', value: '44.8k', trend: '+1.0% QoQ', Icon: TrendingUp, positive: true }
         ]
     };
 
@@ -164,12 +164,12 @@ const AnalyticsDashboard = ({ userGoals = [], onChatPrompt = () => { } }) => {
         { name: 'Medical Center', date: '7 Nov, 3:34 PM', amount: -385.02, icon: '+', color: '#000', bg: '#f4f4f5' },
         { name: 'Uber', date: '5 Nov, 8:00 AM', amount: -15.50, icon: 'U', color: '#000', bg: '#f4f4f6' }
     ]) : [
-        { name: 'Salary', date: '1 Nov, 9:00 AM', amount: 5000.00, icon: '$', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' },
+        { name: 'Salary', date: '1 Nov, 9:00 AM', amount: 5000.00, icon: '₹', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' },
         { name: 'Freelance', date: '25 Oct, 2:00 PM', amount: 450.00, icon: 'F', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' }
     ];
 
     const allDeposits = [
-        { name: 'Salary', date: '1 Nov, 9:00 AM', amount: 5000.00, icon: '$', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' },
+        { name: 'Salary', date: '1 Nov, 9:00 AM', amount: 5000.00, icon: '₹', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' },
         { name: 'Freelance', date: '25 Oct, 2:00 PM', amount: 450.00, icon: 'F', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' },
         { name: 'Project Bonus', date: '18 Oct, 4:15 PM', amount: 1200.00, icon: 'B', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' },
         { name: 'Dividends', date: '15 Oct, 11:30 AM', amount: 210.50, icon: 'D', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' },
@@ -301,17 +301,17 @@ const AnalyticsDashboard = ({ userGoals = [], onChatPrompt = () => { } }) => {
                             lineHeight: 1.1,
                             filter: 'drop-shadow(0 2px 8px rgba(245, 158, 11, 0.3))'
                         }}>
-                            ${balance.toLocaleString()}
+                            ₹{balance.toLocaleString()}
                         </h1>
                         <div className="btn-toggle" style={{ background: 'rgba(255,255,255,0.85)' }}>
                             <button
-                                className={`btn-toggle-opt ${view === 'income' ? 'active' : ''}`}
+                                className={`btn-toggle-opt ₹{view === 'income' ? 'active' : ''}`}
                                 onClick={() => setView('income')}
                             >
                                 Income
                             </button>
                             <button
-                                className={`btn-toggle-opt ${view === 'expenses' ? 'active' : ''}`}
+                                className={`btn-toggle-opt ₹{view === 'expenses' ? 'active' : ''}`}
                                 onClick={() => setView('expenses')}
                             >
                                 Expenses
@@ -331,7 +331,7 @@ const AnalyticsDashboard = ({ userGoals = [], onChatPrompt = () => { } }) => {
                 <div className="section-heading" style={{ alignItems: 'center', gap: '0.75rem' }}>
                     <h3>Portfolio Snapshot</h3>
                     <div className="month-select-wrap">
-                        <span className={`pill month-pill ${monthPulse ? 'pulse' : ''}`} key={selectedMonth}>
+                        <span className={`pill month-pill ₹{monthPulse ? 'pulse' : ''}`} key={selectedMonth}>
                             {selectedMonth}
                         </span>
                         <select
@@ -359,7 +359,7 @@ const AnalyticsDashboard = ({ userGoals = [], onChatPrompt = () => { } }) => {
                                 <span>{title}</span>
                             </div>
                             <div className="kpi-value">{value}</div>
-                            <div className={`kpi-trend ${positive ? '' : 'neg'}`}>{trend}</div>
+                            <div className={`kpi-trend ₹{positive ? '' : 'neg'}`}>{trend}</div>
                         </div>
                     ))}
                 </div>
@@ -432,7 +432,7 @@ const AnalyticsDashboard = ({ userGoals = [], onChatPrompt = () => { } }) => {
                             marginTop: '1.25rem',
                         }}>
                             <div className="pill-soft" style={{ width: 'fit-content' }}>
-                                {view === 'expenses' ? 'Total spent: $2,392' : 'Total earned: $5,300'}
+                                {view === 'expenses' ? 'Total spent: ₹2,392' : 'Total earned: ₹5,300'}
                             </div>
                             <button
                                 className="btn-secondary"
@@ -450,7 +450,7 @@ const AnalyticsDashboard = ({ userGoals = [], onChatPrompt = () => { } }) => {
                                         const res = await fetch('http://127.0.0.1:8000/api/export-summary');
                                         if (!res.ok) {
                                             const text = await res.text();
-                                            throw new Error(`Export failed (${res.status}): ${text}`);
+                                            throw new Error(`Export failed ₹{res.status}): ₹{text}`);
                                         }
                                         const blob = await res.blob();
                                         const url = window.URL.createObjectURL(blob);
@@ -568,7 +568,7 @@ const AnalyticsDashboard = ({ userGoals = [], onChatPrompt = () => { } }) => {
                                 <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                                     {categoryData.map((entry, index) => (
                                         <Cell
-                                            key={`cell-${index}`}
+                                            key={`cell-₹{index}`}
                                             fill={entry.color}
                                         />
                                     ))}
@@ -613,7 +613,7 @@ const AnalyticsDashboard = ({ userGoals = [], onChatPrompt = () => { } }) => {
                                             </span>
                                         </div>
                                         <div className="progress-bar">
-                                            <div className="progress-fill" style={{ width: `${percentage}%`, background: goal.color }} />
+                                            <div className="progress-fill" style={{ width: `₹{percentage}%`, background: goal.color }} />
                                         </div>
                                     </div>
                                 );
@@ -641,7 +641,7 @@ const AnalyticsDashboard = ({ userGoals = [], onChatPrompt = () => { } }) => {
                                 color: 'rgba(255,255,255,0.9)',
                                 fontSize: 'clamp(0.85rem, 2vw, 1rem)'
                             }}>
-                                Cash flow remains strong. You can increase investments by $250 this month without impacting emergency reserves.
+                                Cash flow remains strong. You can increase investments by ₹250 this month without impacting emergency reserves.
                             </p>
                             <div className="prompt-row">
                                 <button
